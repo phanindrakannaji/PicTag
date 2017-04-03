@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">PicTag</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_in_short">Sign In</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="facebook_app_id">1432559890127516</string>
+    <string name="fb_login_protocol_scheme">fb1432559890127516</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_newsfeed">NewsFeed</string>
+    <string name="title_search">Search</string>
+    <string name="title_camera">Camera</string>
+    <string name="title_tags">Tags</string>
+    <string name="title_profile">Profile</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
