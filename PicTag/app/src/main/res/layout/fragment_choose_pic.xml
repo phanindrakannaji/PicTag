@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.umbc.android.pictag.ChoosePicFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <Button
+        android:id="@+id/bt_cpf_camera"
+        android:layout_width="160dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="60dp"
+        android:text="Camera"
+        android:textSize="24sp"/>
+
+    <Button
+        android:layout_width="160dp"
+        android:layout_height="100dp"
+        android:text="Photos"
+        android:textSize="24sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="60dp"
+        android:id="@+id/bt_cpf_photos"/>
+
+</LinearLayout>
