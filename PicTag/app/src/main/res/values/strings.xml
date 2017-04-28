@@ -24,4 +24,11 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="log_in">Log In</string>
+    <string name="email_address">Email address</string>
+    <string name="new_to_pictag">New to Pictag?    </string>
+    <string name="sign_up">Sign Up</string>
+    <string name="auth_failed">SignUp failed</string>
 </resources>
