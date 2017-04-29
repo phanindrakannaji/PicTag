@@ -1,2 +1,3 @@
 WS/SSH_KEYS/*
-
+.DS_Store
+~.gitignore
