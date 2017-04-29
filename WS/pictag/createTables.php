@@ -28,11 +28,12 @@ if ($createUsers){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		user_id INT AUTO INCREMENT PRIMARY KEY,
+		user_id INT AUTO_INCREMENT PRIMARY KEY,
 		email VARCHAR(20),
-		fullName VARCHAR(20),
+		firstName VARCHAR(20),
+		lastName VARCHAR(20),
 		fb_profile_id VARCHAR(20),
-		dob DATETIME,
+		dob VARCHAR(10),
 		gender VARCHAR(1),
 		created_date DATETIME,
 		last_updated_date DATETIME,
@@ -55,7 +56,7 @@ if ($createPosts){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		post_id INT AUTO INCREMENT PRIMARY KEY,
+		post_id INT AUTO_INCREMENT PRIMARY KEY,
 		user_id INT,
 		image_url VARCHAR(100),
 		is_Priced VARCHAR(1),
@@ -82,7 +83,7 @@ if ($createComments){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		comment_id AUTO INCREMENT PRIMARY KEY,
+		comment_id INT AUTO_INCREMENT PRIMARY KEY,
 		post_id INT,
 		user_id INT,
 		comment VARCHAR(100),
@@ -104,7 +105,7 @@ if ($createUpDownvotes){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		ud_id INT AUTO INCREMENT PRIMARY KEY,
+		ud_id INT AUTO_INCREMENT PRIMARY KEY,
 		post_id INT,
 		user_id INT,
 		ud_flag VARCHAR(1),
@@ -123,7 +124,7 @@ if ($createTags){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		tag_id INT AUTO INCREMENT PRIMARY KEY,
+		tag_id INT AUTO_INCREMENT PRIMARY KEY,
 		tag VARCHAR(20),
 		created_date DATETIME,
 		last_updated_date DATETIME
@@ -158,7 +159,7 @@ if ($createWaterMarks){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		watermark_id INT AUTO INCREMENT PRIMARY KEY,
+		watermark_id INT AUTO_INCREMENT PRIMARY KEY,
 		source VARCHAR(100),
 		created_date DATETIME,
 		last_updated_date DATETIME,
@@ -182,7 +183,7 @@ if ($createPurchases){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		pruchase_id INT AUTO INCREMENT PRIMARY KEY,
+		pruchase_id INT AUTO_INCREMENT PRIMARY KEY,
 		post_id INT,
 		user_id INT,
 		price DECIMAL(16,2),
@@ -203,7 +204,7 @@ if ($createParameters){
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
-		parameter_id INT AUTO INCREMENT PRIMARY KEY,
+		parameter_id INT AUTO_INCREMENT PRIMARY KEY,
 		name VARCHAR(20),
 		value VARCHAR(20),
 		created_date DATETIME,

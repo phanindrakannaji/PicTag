@@ -5,13 +5,15 @@ include "dbinfo.inc";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-$latitude = floatval(0);
-$longitude = floatval(0);
 $email = $data["email"];
-$password = $data["password"];
-$fullName = $data["fullName"];
+$firstName = $data["firstName"];
+$lastName = $data["lastName"];
+$fb_profile_id = $data["fbProfileId"];
+$dob = $data["dob"];
+$gender = $data["gender"];
+$profilePicUrl = $data["profilePicUrl"];
 
-$table = "friends";
+$table = "users";
 
 #Connect to MySql server
 $mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
@@ -20,7 +22,8 @@ if ($mysqli->connect_errno) {
     die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 }
 $email = $mysqli->real_escape_string($email);
-$password = $mysqli->real_escape_string($password);
+$profilePicUrl = $mysqli->real_escape_string($profilePicUrl);
+
 $error = "";
 $errorOccurred = false;
 
@@ -28,7 +31,7 @@ $errorOccurred = false;
 $res = $mysqli->query("SELECT email FROM ".$table." WHERE LOWER(email) = LOWER('". $email ."')");
 if (!$res || $res->num_rows == 0 ){
 	# Insert entry for user if user doesn't exist
-	$query = "INSERT INTO $table(email, fullName, password, latestTimestamp, lastAlertedTime, latitude, longitude, token) VALUES(LOWER('$email'), '$fullName', '$password', now(), now(), $latitude, $longitude, '')";
+	$query = "INSERT INTO $table(email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token) VALUES('$email', '$firstName', '$lastName', '$fb_profile_id', '$dob', '$gender', now(), now(), now(), 0, '', now(), '')";
 	$result = $mysqli->query($query);
 	if(!$result)
 	{
@@ -45,14 +48,10 @@ if ($errorOccurred){
 	$jsonArr["errorMessage"] = $error;
 	$jsonMainArr[] = $jsonArr;
 } else{
-	$res = $mysqli->query("SELECT email, fullName, latestTimestamp, latitude, longitude  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
+	$res = $mysqli->query("SELECT user_id  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
-	    $jsonArr["email"] = $row['email'];
-	    $jsonArr["fullName"] = $row['fullName'];
-	    $jsonArr["latestTimestamp"] = $row['latestTimestamp'];
-	    $jsonArr["latitude"] = $row['latitude'];
-	    $jsonArr["longitude"] = $row['longitude'];
+	    $jsonArr["user_id"] = $row['user_id'];
 	    $jsonMainArr[] = $jsonArr;
 	}
 }

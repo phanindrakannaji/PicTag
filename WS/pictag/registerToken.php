@@ -8,7 +8,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $token = $data["token"];
 $email = $data["email"];
 $mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
-$table = "friends";
+$table = "users";
 
 if ($mysqli->connect_errno) {
     die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);

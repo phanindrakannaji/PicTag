@@ -5,12 +5,9 @@ include "dbinfo.inc";
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-$latitude = floatval(0);
-$longitude = floatval(0);
 $email = $data["email"];
-$password = $data["password"];
 
-$table = "friends";
+$table = "users";
 
 #Connect to MySql server
 $mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
@@ -19,7 +16,6 @@ if ($mysqli->connect_errno) {
     die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 }
 $email = $mysqli->real_escape_string($email);
-$password = $mysqli->real_escape_string($password);
 $error = "";
 $errorOccurred = false;
 
@@ -29,7 +25,7 @@ if (!$res || $res->num_rows == 0 ){
 	$error = "Login: Email does not exist!!! \n";
 	$errorOccurred = true;
 } else{
-	$res = $mysqli->query("SELECT email FROM ".$table." WHERE LOWER(email) = LOWER('$email') and password = '$password'");
+	$res = $mysqli->query("UPDATE $table SET last_login_time=now() WHERE LOWER(email) = '$email'");
 	if (!$res || $res->num_rows == 0 ){
 		$error = "Login: No matching account for email and password!! \n";
 		$errorOccurred = true;
@@ -42,14 +38,20 @@ if ($errorOccurred){
 	$jsonArr["errorMessage"] = $error;
 	$jsonMainArr[] = $jsonArr;
 } else{
-	$res = $mysqli->query("SELECT email, fullName, latestTimestamp, latitude, longitude  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
+	$res = $mysqli->query("SELECT id, email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token
+	  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
+		$jsonArr["id"] = $row['id'];
 	    $jsonArr["email"] = $row['email'];
-	    $jsonArr["fullName"] = $row['fullName'];
-	    $jsonArr["latestTimestamp"] = $row['latestTimestamp'];
-	    $jsonArr["latitude"] = $row['latitude'];
-	    $jsonArr["longitude"] = $row['longitude'];
+	    $jsonArr["firstName"] = $row['firstName'];
+	    $jsonArr["lastName"] = $row['lastName'];
+	    $jsonArr["fb_profile_id"] = $row['fb_profile_id'];
+	    $jsonArr["dob"] = $row['dob'];
+	    $jsonArr["reputation"] = $row['reputation'];
+	    $jsonArr["profilePicUrl"] = $row['profilePicUrl'];
+	    $jsonArr["token"] = $row['token'];
+	    $jsonArr["gender"] = $row['gender'];
 	    $jsonMainArr[] = $jsonArr;
 	}
 }

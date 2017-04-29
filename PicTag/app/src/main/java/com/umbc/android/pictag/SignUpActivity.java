@@ -52,6 +52,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 if (user != null) {
                     // User is signed in
 
+
+
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                     Intent myIntent = new Intent(SignUpActivity.this, HomeActivity.class);
                     myIntent.putExtra("email", email.getText().toString());
