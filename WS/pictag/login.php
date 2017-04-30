@@ -25,8 +25,8 @@ if (!$res || $res->num_rows == 0 ){
 	$error = "Login: Email does not exist!!! \n";
 	$errorOccurred = true;
 } else{
-	$res = $mysqli->query("UPDATE $table SET last_login_time=now() WHERE LOWER(email) = '$email'");
-	if (!$res || $res->num_rows == 0 ){
+	$res = $mysqli->query("UPDATE $table SET last_login_time=now() WHERE LOWER(email) = LOWER('$email')");
+	if (!$res){
 		$error = "Login: No matching account for email and password!! \n";
 		$errorOccurred = true;
 	}
@@ -38,11 +38,11 @@ if ($errorOccurred){
 	$jsonArr["errorMessage"] = $error;
 	$jsonMainArr[] = $jsonArr;
 } else{
-	$res = $mysqli->query("SELECT id, email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token
+	$res = $mysqli->query("SELECT user_id, email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token
 	  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
-		$jsonArr["id"] = $row['id'];
+		$jsonArr["user_id"] = $row['user_id'];
 	    $jsonArr["email"] = $row['email'];
 	    $jsonArr["firstName"] = $row['firstName'];
 	    $jsonArr["lastName"] = $row['lastName'];

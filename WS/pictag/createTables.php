@@ -5,15 +5,16 @@ include "dbinfo.inc";
 
 $mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
 
-$createUsers = true;
-$createPosts = true;
-$createComments = true;
-$createUpDownvotes = true;
-$createTags = true;
-$createPostTags = true;
-$createWaterMarks = true;
-$createPurchases = true;
-$createParameters = true;
+$createUsers = false;
+$createPosts = false;
+$createComments = false;
+$createUpDownvotes = false;
+$createTags = false;
+$createPostTags = false;
+$createUserTags = true;
+$createWaterMarks = false;
+$createPurchases = false;
+$createParameters = false;
 
 
 if ($mysqli->connect_errno) {
@@ -34,7 +35,7 @@ if ($createUsers){
 		lastName VARCHAR(20),
 		fb_profile_id VARCHAR(20),
 		dob VARCHAR(10),
-		gender VARCHAR(1),
+		gender VARCHAR(10),
 		created_date DATETIME,
 		last_updated_date DATETIME,
 		last_login_time DATETIME,
@@ -127,7 +128,8 @@ if ($createTags){
 		tag_id INT AUTO_INCREMENT PRIMARY KEY,
 		tag VARCHAR(20),
 		created_date DATETIME,
-		last_updated_date DATETIME
+		last_updated_date DATETIME,
+		last_alerted_date DATETIME
 		)")) {
 	    die("[ERROR] Failed to create table " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error);
 	} else{
@@ -145,6 +147,25 @@ if ($createPostTags){
 		post_id INT,
 		tag_id INT,
 		type VARCHAR(1)
+		)")) {
+	    die("[ERROR] Failed to create table " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error);
+	} else{
+		echo $table . "\n<br/>";
+	}
+}
+
+if ($createUserTags){
+	$table = "user_tags";
+	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
+	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	}
+
+	if (!$mysqli->query("CREATE TABLE " . $table . "(
+		user_id INT,
+		tag_id INT,
+		notify VARCHAR(1),
+		minUpVotes INT,
+		created_date DATETIME
 		)")) {
 	    die("[ERROR] Failed to create table " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error);
 	} else{

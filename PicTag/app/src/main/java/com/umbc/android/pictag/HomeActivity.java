@@ -1,11 +1,13 @@
 package com.umbc.android.pictag;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -42,10 +44,11 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
     CameraFragment cameraFragment;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private String userEmail;
+    private UserProfile userProfile;
     private StorageReference mStorageRef;
     private String mCurrentPhotoPath;
     private String imageFileName;
+    SharedPreferences data;
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -233,8 +236,20 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
 
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            userEmail = user.getEmail();
+            data = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String user_id = data.getString("user_id", "");
+            String email = data.getString("email", "");
+            String firstName = data.getString("firstName", "");
+            String lastName = data.getString("lastName", "");
+            String gender = data.getString("gender", "");
+            String dob = data.getString("dob", "");
+            String fbProfileId = data.getString("fb_profile_id", "");
+            int reputation = Integer.valueOf(data.getString("reputation" ,""));
+            String profilePicUrl = data.getString("profilePicUrl", "");
+            String token = data.getString("token", "");
 
+            userProfile = new UserProfile(user_id, email, firstName, lastName,
+                    gender, dob, fbProfileId, reputation, profilePicUrl, token);
         } else{
             mAuth.signOut();
         }
@@ -246,7 +261,6 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.home_menu, menu);
         return true;

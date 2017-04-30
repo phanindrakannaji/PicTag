@@ -30,6 +30,7 @@
     <string name="email_address">Email address</string>
     <string name="new_to_pictag">New to Pictag?    </string>
     <string name="sign_up">Sign Up</string>
-    <string name="auth_failed">SignUp failed</string>
+    <string name="auth_failed">Login unsuccessful</string>
+    <string name="login_auth_failed">SignUp failed</string>
     <string name="domain">http://ec2-54-174-220-13.compute-1.amazonaws.com</string>
 </resources>

@@ -48,10 +48,20 @@ if ($errorOccurred){
 	$jsonArr["errorMessage"] = $error;
 	$jsonMainArr[] = $jsonArr;
 } else{
-	$res = $mysqli->query("SELECT user_id  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
+	$res = $mysqli->query("SELECT user_id, email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token
+	  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
-	    $jsonArr["user_id"] = $row['user_id'];
+		$jsonArr["user_id"] = $row['user_id'];
+	    $jsonArr["email"] = $row['email'];
+	    $jsonArr["firstName"] = $row['firstName'];
+	    $jsonArr["lastName"] = $row['lastName'];
+	    $jsonArr["fb_profile_id"] = $row['fb_profile_id'];
+	    $jsonArr["dob"] = $row['dob'];
+	    $jsonArr["reputation"] = $row['reputation'];
+	    $jsonArr["profilePicUrl"] = $row['profilePicUrl'];
+	    $jsonArr["token"] = $row['token'];
+	    $jsonArr["gender"] = $row['gender'];
 	    $jsonMainArr[] = $jsonArr;
 	}
 }

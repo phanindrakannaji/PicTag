@@ -32,8 +32,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -64,9 +62,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    String[] input = new String[3];
-                    UserTask userTask = new UserTask();
-                    userTask.execute(input);
+                    String[] input = new String[1];
+                    input[0] = loginEmail.getText().toString();
+                    UserTask loginUserTask = new UserTask();
+                    loginUserTask.execute(input);
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
                     // User is signed out
@@ -112,7 +111,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 // signed in user can be handled in the listener.
                                 if (!task.isSuccessful()) {
                                     Log.w(TAG, "signInWithEmail:failed", task.getException());
-                                    Toast.makeText(LoginActivity.this, R.string.auth_failed,
+                                    Toast.makeText(LoginActivity.this, R.string.login_auth_failed,
                                             Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -133,13 +132,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             URL url;
             String response = "";
             String domain = getString(R.string.domain);
-            String requestUrl = "";
-            if (strings[0].equalsIgnoreCase("login")){
-                requestUrl = domain + "/pictag/login.php";
-            } else if (strings[0].equalsIgnoreCase("register")){
-                requestUrl = domain + "/pictag/registerUser.php";
-            }
-            List<UserProfile> users = new ArrayList<>();
+            String requestUrl = domain + "/pictag/login.php";
             try{
                 url = new URL(requestUrl);
                 HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
@@ -152,18 +145,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 OutputStream os = myConnection.getOutputStream();
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
 
-                String requestJsonString = "";
-                if (strings[0].equalsIgnoreCase("login")){
-                    requestJsonString = new JSONObject()
-                            .put("email", strings[1])
-                            .toString();
-                } else if (strings[0].equalsIgnoreCase("register")){
-                    requestJsonString = new JSONObject()
-                            .put("email", strings[1])
-                            .put("fullName", strings[2])
-                            .put("password", strings[3])
-                            .toString();
-                }
+                String requestJsonString = new JSONObject()
+                        .put("email", strings[0])
+                        .toString();
 
                 Log.d("REQUEST BODY : ", requestJsonString);
                 bw.write(requestJsonString);
@@ -180,30 +164,40 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         line = br.readLine();
                     }
                     br.close();
+                } else{
+                    error = "Login Failed!!";
+                    DisplayToast displayToast = new DisplayToast(error);
+                    handler.post(displayToast);
                 }
                 Log.d("RESPONSE BODY: ", response);
 
-                JSONArray jsonArray = new JSONArray(response);
-                if(jsonArray.length() > 0){
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject childJsonObj = jsonArray.getJSONObject(i);
-                        if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
-                            userProfile = new UserProfile(
-                                    childJsonObj.getString("user_id"),
-                                    childJsonObj.getString("email"),
-                                    childJsonObj.getString("firstName"),
-                                    childJsonObj.getString("lastName"),
-                                    childJsonObj.getString("gender"),
-                                    childJsonObj.getString("dob"),
-                                    childJsonObj.getString("fb_profile_id"),
-                                    childJsonObj.getInt("reputation"),
-                                    childJsonObj.getString("profilePicUrl"),
-                                    childJsonObj.getString("token"));
-                        } else if (childJsonObj.getString("status").equalsIgnoreCase("F")){
-                            error = childJsonObj.getString("errorMessage");
-                            DisplayToast displayToast = new DisplayToast(error);
-                            handler.post(displayToast);
+                if (!response.equalsIgnoreCase("")) {
+                    JSONArray jsonArray = new JSONArray(response);
+                    if (jsonArray.length() > 0) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject childJsonObj = jsonArray.getJSONObject(i);
+                            if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
+                                userProfile = new UserProfile(
+                                        childJsonObj.getString("user_id"),
+                                        childJsonObj.getString("email"),
+                                        childJsonObj.getString("firstName"),
+                                        childJsonObj.getString("lastName"),
+                                        childJsonObj.getString("gender"),
+                                        childJsonObj.getString("dob"),
+                                        childJsonObj.getString("fb_profile_id"),
+                                        childJsonObj.getInt("reputation"),
+                                        childJsonObj.getString("profilePicUrl"),
+                                        childJsonObj.getString("token"));
+                            } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
+                                error = childJsonObj.getString("errorMessage");
+                                DisplayToast displayToast = new DisplayToast(error);
+                                handler.post(displayToast);
+                            }
                         }
+                    } else {
+                        error = "Login failed!!";
+                        DisplayToast displayToast = new DisplayToast(error);
+                        handler.post(displayToast);
                     }
                 }
                 myConnection.disconnect();
@@ -215,7 +209,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         protected void onPostExecute(UserProfile user) {
-            if (error.equalsIgnoreCase("")) {
+            if (error.equalsIgnoreCase("") && user != null) {
                 super.onPostExecute(user);
                 SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = userDetails.edit();
