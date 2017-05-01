@@ -21,6 +21,8 @@ try{
 	$res = $mysqli->query($query);
 	$jsonMainArr = array();
 	while ($row = $res->fetch_assoc()) {
+		$jsonArr["status"] = "S";
+		$jsonArr["user_id"] = $row['user_id'];
 		$jsonArr["tag_id"] = $row['tag_id'];
     	$jsonArr["tag_name"] = $row['tag_name'];
     	$jsonArr["notify"] = $row['notify'];

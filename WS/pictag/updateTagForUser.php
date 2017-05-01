@@ -17,7 +17,7 @@ try{
 	    die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}
 
-	$query = "UPDATE user_tags SET notify = '$notify', minUpVotes = '$minUpVotes'
+	$query = "UPDATE user_tags SET notify = '$notify', minUpVotes = $minUpVotes
 			WHERE user_id = $user_id AND tag_id = $tag_id";
 	$res = $mysqli->query($query);
 	if (!$res){

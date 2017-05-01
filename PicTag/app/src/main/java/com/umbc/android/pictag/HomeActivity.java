@@ -73,6 +73,7 @@ public class HomeActivity extends AppCompatActivity{
                     break;
                 case R.id.navigation_tags:
                     selectedFragment = TagsFragment.newInstance();
+                    loadTags();
                     break;
                 case R.id.navigation_profile:
                     selectedFragment = ProfileFragment.newInstance();
@@ -85,6 +86,10 @@ public class HomeActivity extends AppCompatActivity{
         }
 
     };
+
+    private void loadTags() {
+
+    }
 
     private void takeAndSavePic() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
