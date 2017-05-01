@@ -119,16 +119,19 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         switch(view.getId()){
             case R.id.postTopBack:
                 ((HomeActivity) getActivity()).displayNewsFeed();
-                break;
+            break;
             case R.id.postTopDone:
-
+                PostPic();
                 break;
             case R.id.postPic:
-
+                PostPic();
                 break;
         }
     }
 
+    private void PostPic() {
+
+    }
 
 
     /**
