@@ -108,6 +108,10 @@ public class HomeActivity extends AppCompatActivity{
         return userProfile;
     }
 
+    public void setUserProfile(UserProfile userProfile){
+        this.userProfile = userProfile;
+    }
+
     private void takeAndSavePic() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -127,16 +131,15 @@ public class HomeActivity extends AppCompatActivity{
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     takeAndSavePic();
                 } else {
-
+                    handler.post(new DisplayToast("Permissions not provided"));
                 }
-                return;
-            }
+                break;
         }
     }
 
