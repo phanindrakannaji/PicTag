@@ -104,6 +104,10 @@ public class HomeActivity extends AppCompatActivity{
 
     }
 
+    public UserProfile getUserProfile(){
+        return userProfile;
+    }
+
     private void takeAndSavePic() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {

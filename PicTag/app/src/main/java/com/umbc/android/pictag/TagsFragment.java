@@ -48,6 +48,8 @@ public class TagsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    UserProfile userProfile;
+
     // load screen elements from onCreateView
 
     private OnFragmentInteractionListener mListener;
@@ -89,7 +91,11 @@ public class TagsFragment extends Fragment {
         //load the screen elements here
         // from view.findViewById
 
-
+        userProfile = ((HomeActivity) getActivity()).getUserProfile();
+        String[] input = new String[1];
+        input[0] = userProfile.getId();
+        GetTagsTask getTagsTask = new GetTagsTask();
+        getTagsTask.execute(input);
         return view;
     }
 
@@ -209,6 +215,7 @@ public class TagsFragment extends Fragment {
                 super.onPostExecute(tags);
                 //TODO 1
                 // display the list of tags in some list view
+                
             }
         }
     }
