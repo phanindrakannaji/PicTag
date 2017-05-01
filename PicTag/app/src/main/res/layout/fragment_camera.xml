@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/cameraFragment"
     tools:context="com.umbc.android.pictag.CameraFragment"
     android:tag="cameraFragment">
 
@@ -17,8 +18,8 @@
 
                 <Button
                     android:id="@+id/postTopBack"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     style="?android:attr/borderlessButtonStyle"
                     android:layout_margin="10dp"
                     android:background="@drawable/ic_arrow_back"
@@ -29,7 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Write post"
-                    android:textSize="22sp"
+                    android:textSize="18sp"
                     android:layout_toEndOf="@+id/postTopBack"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="10dp"/>
@@ -83,6 +84,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="$"
+                android:visibility="invisible"
                 android:layout_below="@+id/newImage"
                 android:layout_alignBaseline="@+id/tv_price"
                 android:layout_alignBottom="@+id/tv_price"
@@ -95,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:id="@+id/price"
+                android:visibility="invisible"
                 android:layout_toEndOf="@+id/tv_price_symbol"
                 android:layout_below="@+id/newImage"
                 android:inputType="numberDecimal"
@@ -142,6 +145,7 @@
                 android:id="@+id/watermark"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="invisible"
                 android:layout_toEndOf="@id/watermarkSwitch"
                 android:layout_below="@+id/tv_private"
                 />
@@ -163,8 +167,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/tv_category"
                 android:layout_below="@+id/tv_watermark"
-                android:layout_marginStart="200dp"
-                />
+                android:layout_marginStart="200dp" />
 
             <Button
                 android:layout_width="wrap_content"

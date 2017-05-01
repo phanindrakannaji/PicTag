@@ -23,7 +23,7 @@ import android.widget.TextView;
  * Use the {@link CameraFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CameraFragment extends Fragment {
+public class CameraFragment extends Fragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -96,6 +96,14 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        goBack.setOnClickListener(this);
+        topDone.setOnClickListener(this);
+        postPic.setOnClickListener(this);
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
@@ -105,6 +113,23 @@ public class CameraFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.postTopBack:
+                ((HomeActivity) getActivity()).displayNewsFeed();
+                break;
+            case R.id.postTopDone:
+
+                break;
+            case R.id.postPic:
+
+                break;
+        }
+    }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

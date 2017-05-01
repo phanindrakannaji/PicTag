@@ -50,6 +50,7 @@ public class HomeActivity extends AppCompatActivity{
     private String mCurrentPhotoPath;
     private String imageFileName;
     SharedPreferences data;
+    BottomNavigationView navigation;
     Handler handler = new Handler();
 
 
@@ -86,6 +87,18 @@ public class HomeActivity extends AppCompatActivity{
         }
 
     };
+
+    public void displayNewsFeed(){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.display_fragment, NewsFeedFragment.newInstance()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null);
+        transaction.commit();
+        navigation.getMenu().getItem(0).setChecked(true);
+        navigation.getMenu().getItem(1).setChecked(false);
+        navigation.getMenu().getItem(2).setChecked(false);
+        navigation.getMenu().getItem(3).setChecked(false);
+        navigation.getMenu().getItem(4).setChecked(false);
+    }
 
     private void loadTags() {
 
@@ -258,7 +271,7 @@ public class HomeActivity extends AppCompatActivity{
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
