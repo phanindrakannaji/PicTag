@@ -5,7 +5,7 @@ include "dbinfo.inc";
 
 try{
 	$data = json_decode(file_get_contents('php://input'), true);
-	$name = $data["id"];
+	$user_id = $data["user_id"];
 
 	#Connect to MySql server
 	$mysqli = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_DATABASE);
@@ -15,7 +15,7 @@ try{
 	}
 
 	$query = "SELECT a.tag_id as tag_id, b.tag as tag_name, a.notify as notify, a.minUpVotes as minUpVotes FROM user_tags a, tags b 
-			WHERE a.user_id = $id
+			WHERE a.user_id = $user_id
 			AND a.tag_id = b.tag_id
 			ORDER BY b.tag ASC";
 	$res = $mysqli->query($query);
