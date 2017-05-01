@@ -1,19 +1,186 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.umbc.android.pictag.CameraFragment"
     android:tag="cameraFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="This is camera fragment" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/scrollView2">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/newImage"/>
+                <Button
+                    android:id="@+id/postTopBack"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/ic_arrow_back"
+                    />
 
-</FrameLayout>
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Write post"
+                    android:textSize="22sp"
+                    android:layout_toEndOf="@+id/postTopBack"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="10dp"/>
+
+                <Button
+                    android:id="@+id/postTopDone"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/ic_done"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_margin="10dp"
+                    android:layout_alignParentEnd="true" />
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:id="@+id/newImage"
+                android:layout_marginLeft="10dp"
+                android:layout_below="@+id/postTopBack"
+                android:layout_alignStart="@+id/tv_price" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:hint="Add a description"
+                android:background="@android:color/transparent"
+                android:layout_below="@+id/postTopDone"
+                android:layout_toEndOf="@+id/newImage"
+                android:inputType="textMultiLine"
+                android:id="@+id/description" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add a price"
+                android:textSize="18sp"
+                android:id="@+id/tv_price"
+                android:layout_below="@+id/newImage"
+                android:layout_alignBaseline="@+id/priceSwitch"
+                android:layout_alignBottom="@+id/priceSwitch"
+                android:layout_margin="15dp"/>
+
+            <Switch
+                android:id="@+id/priceSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below = "@+id/newImage"
+                android:layout_marginStart="200dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$"
+                android:layout_below="@+id/newImage"
+                android:layout_alignBaseline="@+id/tv_price"
+                android:layout_alignBottom="@+id/tv_price"
+                android:layout_toEndOf="@+id/privateSwitch"
+                android:layout_marginStart="10dp"
+                android:id="@+id/tv_price_symbol"
+                />
+            <EditText
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:id="@+id/price"
+                android:layout_toEndOf="@+id/tv_price_symbol"
+                android:layout_below="@+id/newImage"
+                android:inputType="numberDecimal"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Anyone could see this"
+                android:textSize="18sp"
+                android:id="@+id/tv_private"
+                android:layout_alignBaseline="@+id/privateSwitch"
+                android:layout_alignBottom="@+id/privateSwitch"
+                android:layout_below="@+id/tv_price"
+                android:layout_margin="15dp"/>
+
+            <Switch
+                android:id="@+id/privateSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_below="@+id/tv_price"
+                android:layout_marginStart="200dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Watermark"
+                android:textSize="18sp"
+                android:id="@+id/tv_watermark"
+                android:layout_alignBaseline="@+id/watermarkSwitch"
+                android:layout_alignBottom="@+id/watermarkSwitch"
+                android:layout_below="@+id/tv_private"
+                android:layout_margin="15dp"
+                />
+
+            <Switch
+                android:id="@+id/watermarkSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_private"
+                android:layout_marginStart="200dp" />
+
+            <Spinner
+                android:id="@+id/watermark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/watermarkSwitch"
+                android:layout_below="@+id/tv_private"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_category"
+                android:textSize="18sp"
+                android:text="Category"
+                android:layout_alignBaseline="@+id/category"
+                android:layout_alignBottom="@+id/category"
+                android:layout_below="@+id/tv_watermark"
+                android:layout_margin="15dp"/>
+
+            <Spinner
+                android:id="@+id/category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/tv_category"
+                android:layout_below="@+id/tv_watermark"
+                android:layout_marginStart="200dp"
+                />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/postPic"
+                android:text="Post"
+                android:layout_margin="15dp"
+                android:layout_centerHorizontal="true"
+                android:backgroundTint="@color/colorPrimary"
+                android:layout_below="@+id/tv_watermark"
+
+                />
+
+        </RelativeLayout>
+    </ScrollView>
+
+
+
+</RelativeLayout>

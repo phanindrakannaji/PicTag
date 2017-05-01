@@ -7,7 +7,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.TextView;
 
 
 /**
@@ -28,6 +33,12 @@ public class CameraFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     ImageView newImage;
+    private String downloadUrl;
+    Button goBack, topDone, postPic;
+    TextView tvPriceSymbol;
+    EditText description, price;
+    Switch priceSwitch, privateSwitch, watermarkSwitch;
+    Spinner watermark, category;
 
     private OnFragmentInteractionListener mListener;
 
@@ -64,6 +75,23 @@ public class CameraFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
         newImage = (ImageView) view.findViewById(R.id.newImage);
+
+        goBack = (Button) view.findViewById(R.id.postTopBack);
+        topDone = (Button) view.findViewById(R.id.postTopDone);
+        postPic = (Button) view.findViewById(R.id.postPic);
+
+        tvPriceSymbol = (TextView) view.findViewById(R.id.tv_price_symbol);
+
+        description = (EditText) view.findViewById(R.id.description);
+        price = (EditText) view.findViewById(R.id.price);
+
+        priceSwitch = (Switch) view.findViewById(R.id.priceSwitch);
+        privateSwitch = (Switch) view.findViewById(R.id.privateSwitch);
+        watermarkSwitch = (Switch) view.findViewById(R.id.watermarkSwitch);
+
+        watermark = (Spinner) view.findViewById(R.id.watermark);
+        category = (Spinner) view.findViewById(R.id.category);
+
         return view;
     }
 
@@ -94,5 +122,9 @@ public class CameraFragment extends Fragment {
 
     public void setNewImage(Bitmap bitmap) {
         newImage.setImageBitmap(bitmap);
+    }
+
+    public void setDownloadUrl(String downloadUrl){
+        this.downloadUrl = downloadUrl;
     }
 }

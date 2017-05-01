@@ -15,6 +15,7 @@ $createUserTags = false;
 $createWaterMarks = false;
 $createPurchases = false;
 $createParameters = false;
+$insertParameters = false;
 
 
 if ($mysqli->connect_errno) {
@@ -25,7 +26,7 @@ echo "Created below tables: \n<br/>";
 if ($createUsers){
 	$table = "users";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -53,7 +54,7 @@ if ($createUsers){
 if ($createPosts){
 	$table = "posts";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -80,7 +81,7 @@ if ($createPosts){
 if ($createComments){
 	$table = "comments";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -102,7 +103,7 @@ if ($createComments){
 if ($createUpDownvotes){
 	$table = "updownvotes";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -121,7 +122,7 @@ if ($createUpDownvotes){
 if ($createTags){
 	$table = "tags";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -140,7 +141,7 @@ if ($createTags){
 if ($createPostTags){
 	$table = "post_tags";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -157,7 +158,7 @@ if ($createPostTags){
 if ($createUserTags){
 	$table = "user_tags";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -176,7 +177,7 @@ if ($createUserTags){
 if ($createWaterMarks){
 	$table = "watermarks";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -200,7 +201,7 @@ if ($createWaterMarks){
 if ($createPurchases){
 	$table = "purchases";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
@@ -221,13 +222,14 @@ if ($createPurchases){
 if ($createParameters){
 	$table = "parameters";
 	if (!$mysqli->query("DROP TABLE IF EXISTS " . $table)) {
-	    die("[ERROR] Failed Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	    die("[ERROR] Dropping the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
 	}
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
 		parameter_id INT AUTO_INCREMENT PRIMARY KEY,
-		name VARCHAR(20),
-		value VARCHAR(20),
+		name VARCHAR(50),
+		value VARCHAR(50),
+		group_name VARCHAR(20),
 		created_date DATETIME,
 		last_updated_date DATETIME
 		)")) {
@@ -235,6 +237,30 @@ if ($createParameters){
 	} else{
 		echo $table . "\n<br/>";
 	}
+}
+
+if ($insertParameters){
+	$table = "parameters";
+	if (!$mysqli->query("DELETE FROM " . $table)) {
+		echo $mysqli->error;
+	    die("[ERROR] Deleting the table " . $table . " failed: (" . $mysqli->errno . ") " . $mysqli->error);
+	}
+
+	$categories = array("Abstract photography","ActionShot","Aerial photography","Analog photography","Architectural photography","Astrophotography","Aviation photography","Banquet photography","Burns Archive","Candid photography","Close-up","Cloudscape photography","Conceptual photography","Concert photography","Conservation photography","Documentary photography","Event photography","Fancy portrait","Fashion photography","Fauxtography","Femto-photography","Film still","Fine-art photography","Fire photography","Fireworks photography","Food photography","Forensic photography","Genre art","Geophotography","Glamour photography","High key","High-speed photography","Humanist photography","Imagery intelligence","In-game photography","International Society for Aviation Photography","Kirlian photography","Lifestyle photography","Lo-fi photography","Lomography","Long-exposure photography","Low key","Macro photography","Medical photography","Monochrome photography","Narrative photography","Night photography","Old-time photography","Panorama","Panoramic photography","Pellier Noir","Photo op","Photobiography","Photography by indigenous peoples of the Americas","Photojournalism","Photovoice","Photowalking","Pictorialism","Polaroid art","Portrait photography","Post-mortem photography","Red shirt (photography)","Satellite imagery","Secret photography","Slow photography","Snapshot (photography)","Snapshot aesthetic","Social documentary photography","Social photography","Soft focus","Star trail","Still life photography","Still photography","Stock photography","Straight photography","Street photography","Subminiature photography","Tele-snaps","The Straight Up","Thoughtography","Time-lapse photography","Travel photography","Ultraviolet photography","Underwater videography","Vernacular photography","Vintage print","Visual anthropology");
+
+	$prefix = "INSERT INTO parameters (name, value, group_name, created_date, last_updated_date) VALUES ('";
+	$suffix = "', 'CATEGORY', now(), now())";
+	$num = 1;
+	foreach ($categories as $category){
+		$query = $prefix . $num . "', '" . $mysqli->real_escape_string($category) . $suffix;
+		echo $query . "<br/>";
+		if (!$mysqli->query($query)) {
+			echo "[ERROR] Failed to insert into " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error;
+		    die("[ERROR] Failed to insert into " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error);
+		}
+		$num = $num + 1;
+	}
+	echo "Insertion of parameters successful!!";
 }
 
 

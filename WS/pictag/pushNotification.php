@@ -4,9 +4,9 @@
 include "dbinfo.inc";
 
 define('API_ACCESS_KEY', 'AAAA-i04Bis:APA91bFGeCi7umkTQveON03UFznMMq78SV_HjqkXUhf3p165c1g6JwmwuM_CY2jSGDjwBOkjishvorlAxvx0ZSW5MqI_Lg02834cpq9CLwQM_2cI_W8YwLZYOTDzq3vpF8SKt6l6fJ6K');
-$table = "friends";
+$table = "users";
 
-class Friend
+class User
 {
     // property declaration
     public $email;
@@ -110,7 +110,7 @@ foreach ($users as $user){
 		$distance = getDistanceFromLatLonInKm($latitude, $longitude, $friendLatitude, $friendLongitude);
 		echo "distance: " . $distance;
 		if ($distance <= 10){
-			$friend = new Friend($row['email'], $row['fullName'], $row['latestTimestamp'],$row['lastAlertedTime'],$row['latitude'],$row['longitude'], $row['token']);
+			$friend = new User($row['email'], $row['fullName'], $row['latestTimestamp'],$row['lastAlertedTime'],$row['latitude'],$row['longitude'], $row['token']);
 			$friends[] = $friend;
 		}
 	}

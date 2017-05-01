@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -30,13 +32,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class HomeActivity extends AppCompatActivity implements CameraFragment.OnFragmentInteractionListener {
+public class HomeActivity extends AppCompatActivity{
 
     private static final int PICK_A_PHOTO = 100;
     private static final String TAG = "HomeActivity";
@@ -49,6 +50,7 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
     private String mCurrentPhotoPath;
     private String imageFileName;
     SharedPreferences data;
+    Handler handler = new Handler();
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -91,15 +93,9 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
                 ex.printStackTrace();
             }
-            // Continue only if the File was successfully created
             if (photoFile != null) {
-                /*Uri photoURI = FileProvider.getUriForFile(HomeActivity.this,
-                        "com.example.android.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);*/
                 startActivityForResult(takePictureIntent, PICK_A_PHOTO);
             }
         }
@@ -142,7 +138,7 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        imageFileName = "JPEG_" + timeStamp + "_";
+        imageFileName = "PNG_" + timeStamp + "_";
 
         File storageDir = new File(Environment.getExternalStorageDirectory() + File.separator + "DCIM" + File.separator + "PicTag");
         boolean success = storageDir.mkdirs();
@@ -151,7 +147,7 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
         //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
+                ".png",         /* suffix */
                 storageDir      /* directory */
         );
         // Save a file: path for use with ACTION_VIEW intents
@@ -173,22 +169,19 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_A_PHOTO) {
             if (resultCode == RESULT_OK) {
-                //Toast.makeText(getApplicationContext(), "Successful", Toast.LENGTH_SHORT).show();
                 Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-
+                final Bitmap imageBitmap = (Bitmap) extras.get("data");
                 try {
                     FileOutputStream fileOutputStream = new FileOutputStream(new File(mCurrentPhotoPath));
-                    imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    if (imageBitmap != null) {
+                        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+                    }
                     fileOutputStream.flush();
                     fileOutputStream.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                cameraFragment.setNewImage(imageBitmap);
                 galleryAddPic();
 
                 Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
@@ -200,6 +193,10 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 // Get a URL to the uploaded content
                                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                cameraFragment.setNewImage(imageBitmap);
+                                if (downloadUrl != null) {
+                                    cameraFragment.setDownloadUrl(downloadUrl.toString());
+                                }
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -292,8 +289,16 @@ public class HomeActivity extends AppCompatActivity implements CameraFragment.On
         }
     }
 
-    @Override
-    public void setNewImage(Bitmap bitmap) {
+    private class DisplayToast implements Runnable{
 
+        String message;
+
+        DisplayToast(String message){
+            this.message = message;
+        }
+        @Override
+        public void run() {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
