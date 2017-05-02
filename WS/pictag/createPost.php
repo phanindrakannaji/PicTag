@@ -8,6 +8,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $userId = $data["userId"];
 $picUrl = $data["picUrl"];
 $isPriced = $data["isPriced"];
+$price = floatval($data["price"]);
 $description = $data["description"];
 $isPrivate = $data["isPrivate"];
 $watermarkId = $data["watermarkId"];
@@ -27,7 +28,8 @@ $picUrl = $mysqli->real_escape_string($picUrl);
 $error = "";
 $errorOccurred = false;
 
-$query = "INSERT INTO $table(user_id, image_url, is_Priced, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', '$description', now(), now(), 'Y', '$isPrivate', '$watermarkId', '$category', 0, 0)";
+$query = "INSERT INTO $table(user_id, image_url, is_Priced, price, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', $price, '$description', now(), now(), 'Y', '$isPrivate', '$watermarkId', '$category', 0, 0)";
+echo $query;
 $result = $mysqli->query($query);
 if(!$result)
 {

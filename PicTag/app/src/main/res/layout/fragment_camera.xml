@@ -156,7 +156,8 @@
                 android:id="@+id/tv_category"
                 android:textSize="18sp"
                 android:text="Category"
-
+                android:layout_alignBaseline="@+id/category"
+                android:layout_alignBottom="@+id/category"
                 android:layout_below="@+id/tv_watermark"
                 android:layout_margin="15dp"/>
 
@@ -164,9 +165,8 @@
                 android:id="@+id/category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/tv_category"
-                android:layout_below="@+id/tv_watermark"
-                android:layout_marginStart="200dp" />
+                android:layout_alignStart="@id/watermarkSwitch"
+                android:layout_below="@+id/tv_watermark" />
 
             <Button
                 android:layout_width="wrap_content"

@@ -60,8 +60,9 @@ if ($createPosts){
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
 		post_id INT AUTO_INCREMENT PRIMARY KEY,
 		user_id INT,
-		image_url VARCHAR(100),
+		image_url VARCHAR(1024),
 		is_Priced VARCHAR(1),
+		price DECIMAL(10,2),
 		description VARCHAR(100),
 		created_date DATETIME,
 		last_updated_date DATETIME,

@@ -2,17 +2,39 @@ package com.umbc.android.pictag;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 /**
@@ -39,8 +61,13 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     EditText description, price;
     Switch priceSwitch, privateSwitch, watermarkSwitch;
     Spinner watermark, category;
+    List<StringWithTag> categories;
+    List<StringWithTag> watermarks;
+
+    UserProfile userProfile;
 
     private OnFragmentInteractionListener mListener;
+    Handler handler = new Handler();
 
     public CameraFragment() {
         // Required empty public constructor
@@ -92,15 +119,36 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         watermark = (Spinner) view.findViewById(R.id.watermark);
         category = (Spinner) view.findViewById(R.id.category);
 
+        userProfile = ((HomeActivity) getActivity()).getUserProfile();
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        String[] categoryInput = new String[2];
+        categoryInput[0] = "CATEGORY";
+        categoryInput[1] = "G";
+        GetParametersTask categoriesTask = new GetParametersTask();
+        categoriesTask.execute(categoryInput);
+
+        String[] watermarkInput = new String[2];
+        watermarkInput[0] = "WATERMARK";
+        watermarkInput[1] = "G";
+        GetParametersTask watermarksTask = new GetParametersTask();
+        watermarksTask.execute(watermarkInput);
+
         goBack.setOnClickListener(this);
         topDone.setOnClickListener(this);
         postPic.setOnClickListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        goBack.setOnClickListener(null);
+        topDone.setOnClickListener(null);
+        postPic.setOnClickListener(null);
     }
 
     @Override
@@ -119,7 +167,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         switch(view.getId()){
             case R.id.postTopBack:
                 ((HomeActivity) getActivity()).displayNewsFeed();
-            break;
+                break;
             case R.id.postTopDone:
                 PostPic();
                 break;
@@ -130,7 +178,18 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     }
 
     private void PostPic() {
+        String[] input = new String[8];
+        input[0] = userProfile.getId();
+        input[1] = downloadUrl;
+        input[2] = priceSwitch.isChecked()?"Y":"N";
+        input[3] = (String.valueOf(price.getText()).equalsIgnoreCase(""))?"0":String.valueOf(price.getText());
+        input[4] = String.valueOf(description.getText());
+        input[5] = privateSwitch.isChecked()?"Y":"N";
+        input[6] = watermark.getSelectedItem()==null?"0":watermark.getSelectedItem().toString();
+        input[7] = category.getSelectedItem()==null?"0":category.getSelectedItem().toString();
 
+        CreatePostTask createPostTask = new CreatePostTask();
+        createPostTask.execute(input);
     }
 
 
@@ -154,5 +213,223 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
     public void setDownloadUrl(String downloadUrl){
         this.downloadUrl = downloadUrl;
+    }
+
+    private class CreatePostTask extends AsyncTask<String, Integer, String> {
+
+        String error = "";
+        @Override
+        protected String doInBackground(String... strings) {
+            URL url;
+            String response = "";
+            String domain = getString(R.string.domain);
+            String requestUrl = domain + "/pictag/createPost.php";
+            String message = "";
+            try{
+                url = new URL(requestUrl);
+                HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
+                myConnection.setReadTimeout(15000);
+                myConnection.setConnectTimeout(15000);
+                myConnection.setRequestMethod("POST");
+                myConnection.setDoInput(true);
+                myConnection.setDoOutput(true);
+
+                OutputStream os = myConnection.getOutputStream();
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
+
+                String requestJsonString = new JSONObject()
+                        .put("userId", strings[0])
+                        .put("picUrl", strings[1])
+                        .put("isPriced", strings[2])
+                        .put("price", strings[3])
+                        .put("description", strings[4])
+                        .put("isPrivate", strings[5])
+                        .put("watermarkId", strings[6])
+                        .put("category", strings[7])
+                        .toString();
+
+                Log.d("SIGNUP REQUEST BODY : ", requestJsonString);
+                bw.write(requestJsonString);
+                bw.flush();
+                bw.close();
+
+                int responseCode = myConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(myConnection.getInputStream()));
+                    line = br.readLine();
+                    while(line != null){
+                        response += line;
+                        line = br.readLine();
+                    }
+                    br.close();
+                }
+                Log.d("RESPONSE BODY: ", response);
+
+                if (!response.equalsIgnoreCase("")) {
+                    JSONArray jsonArray = new JSONArray(response);
+                    if (jsonArray.length() > 0) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject childJsonObj = jsonArray.getJSONObject(i);
+                            if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
+                                error = childJsonObj.getString("errorMessage");
+                                message = error;
+                            }
+                        }
+                    } else {
+                        error = "Empty Response!";
+                        message = error;
+                    }
+                }
+                myConnection.disconnect();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            return message;
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            super.onPostExecute(message);
+            if (error.equalsIgnoreCase("") && message.equalsIgnoreCase("")) {
+                handler.post(new DisplayToast("Posted successfully!"));
+                ((HomeActivity) getActivity()).displayNewsFeed();
+            } else{
+                handler.post(new DisplayToast(message));
+            }
+        }
+    }
+
+    private class DisplayToast implements Runnable{
+
+        String message;
+
+        DisplayToast(String message){
+            this.message = message;
+        }
+        @Override
+        public void run() {
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private static class StringWithTag {
+        public String string;
+        public Object tag;
+
+        public StringWithTag(String string, Object tag) {
+            this.string = string;
+            this.tag = tag;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
+    }
+
+    private class GetParametersTask extends AsyncTask<String, Integer, List<StringWithTag>> {
+
+        String error = "";
+        @Override
+        protected List<StringWithTag> doInBackground(String... strings) {
+            URL url;
+            String response = "";
+            String domain = getString(R.string.domain);
+            String requestUrl = domain + "/pictag/getParameters.php";
+            List<StringWithTag> list = new ArrayList<>();
+            try{
+                url = new URL(requestUrl);
+                HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
+                myConnection.setReadTimeout(15000);
+                myConnection.setConnectTimeout(15000);
+                myConnection.setRequestMethod("POST");
+                myConnection.setDoInput(true);
+                myConnection.setDoOutput(true);
+
+                OutputStream os = myConnection.getOutputStream();
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
+
+                String requestJsonString = new JSONObject()
+                        .put("name", strings[0])
+                        .put("type", strings[1])
+                        .toString();
+
+                Log.d("REQUEST BODY : ", requestJsonString);
+                bw.write(requestJsonString);
+                bw.flush();
+                bw.close();
+
+                int responseCode = myConnection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK){
+                    String line;
+                    BufferedReader br = new BufferedReader(new InputStreamReader(myConnection.getInputStream()));
+                    line = br.readLine();
+                    while(line != null){
+                        response += line;
+                        line = br.readLine();
+                    }
+                    br.close();
+                } else{
+                    error = "Unable to get tags!!";
+                    handler.post(new DisplayToast(error));
+                }
+                Log.d("RESPONSE BODY: ", response);
+
+                if (!response.equalsIgnoreCase("")) {
+                    JSONArray jsonArray = new JSONArray(response);
+                    if (jsonArray.length() > 0) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject childJsonObj = jsonArray.getJSONObject(i);
+                            StringWithTag cat = new StringWithTag(
+                                    childJsonObj.getString("value"),
+                                    childJsonObj.getString("name"));
+                            list.add(cat);
+                        }
+                    } else {
+                        error = "No Parameters found!";
+                        handler.post(new DisplayToast(error));
+                    }
+                }
+                myConnection.disconnect();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+            if (strings[0].equalsIgnoreCase("CATEGORY")){
+                categories = list;
+                setCategories();
+            } else if(strings[0].equalsIgnoreCase("WATERMARK")){
+                watermarks = list;
+                setWatermarks();
+            }
+            return list;
+        }
+
+        @Override
+        protected void onPostExecute(List<StringWithTag> list) {
+            super.onPostExecute(list);
+        }
+    }
+
+    public void setCategories(){
+        ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayAdapter<StringWithTag> categoryAdapter = new ArrayAdapter<>((HomeActivity)getActivity(), android.R.layout.simple_spinner_item, categories);
+                categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                category.setAdapter(categoryAdapter);
+            }
+        });
+    }
+
+    public void setWatermarks(){
+        ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ArrayAdapter<StringWithTag> watermarkAdapter = new ArrayAdapter<>((HomeActivity)getActivity(), android.R.layout.simple_spinner_item, watermarks);
+                watermarkAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                watermark.setAdapter(watermarkAdapter);
+            }
+        });
     }
 }

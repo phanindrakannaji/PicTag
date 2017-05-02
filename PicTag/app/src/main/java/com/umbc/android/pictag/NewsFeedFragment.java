@@ -187,13 +187,8 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject childJsonObj = jsonArray.getJSONObject(i);
                                 if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
-                                    Post post = new Post(
-                                            childJsonObj.getInt("user_id"),
-                                            childJsonObj.getInt("tag_id"),
-                                            childJsonObj.getString("tag_name"),
-                                            childJsonObj.getString("notify"),
-                                            childJsonObj.getInt("minUpVotes"));
-                                    posts.add(post);
+                                    //Post post = new Post();
+                                    //posts.add(post);
                                 } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                     error = childJsonObj.getString("errorMessage");
                                     handler.post(new DisplayToast(error));
@@ -218,128 +213,6 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
                     //TODO 1
                     // display the list of posts in some list view
                     Log.d(TAG, posts.get(0).getDescription());
-                }
-            }
-        }
-
-        private class UpdatePostTask extends AsyncTask<String, Integer, String> {
-
-            String error = "";
-            @Override
-            protected String doInBackground(String... strings) {
-                URL url;
-                String response = "";
-                String domain = getString(R.string.domain);
-                String requestUrl = domain + "/pictag/updatePostForUser.php";
-                try{
-                    url = new URL(requestUrl);
-                    HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
-                    myConnection.setReadTimeout(15000);
-                    myConnection.setConnectTimeout(15000);
-                    myConnection.setRequestMethod("POST");
-                    myConnection.setDoInput(true);
-                    myConnection.setDoOutput(true);
-
-                    OutputStream os = myConnection.getOutputStream();
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
-
-                    String requestJsonString = new JSONObject()
-                            .put("user_id", strings[0])
-                            .put("post_id", strings[1])
-                            .toString();
-
-                    Log.d("REQUEST BODY : ", requestJsonString);
-                    bw.write(requestJsonString);
-                    bw.flush();
-                    bw.close();
-
-                    int responseCode = myConnection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK){
-                        String line;
-                        BufferedReader br = new BufferedReader(new InputStreamReader(myConnection.getInputStream()));
-                        line = br.readLine();
-                        while(line != null){
-                            response += line;
-                            line = br.readLine();
-                        }
-                        br.close();
-                    } else{
-                        error = "Unable to update tag!!";
-                        handler.post(new DisplayToast(error));
-                    }
-                    myConnection.disconnect();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-                return response;
-            }
-
-            @Override
-            protected void onPostExecute(String response) {
-                if (error.equalsIgnoreCase("") && response != null) {
-                    super.onPostExecute(response);
-                    Log.d("RESPONSE BODY: ", response);
-                }
-            }
-        }
-
-        private class DeleteTagTask extends AsyncTask<String, Integer, String> {
-
-            String error = "";
-            @Override
-            protected String doInBackground(String... strings) {
-                URL url;
-                String response = "";
-                String domain = getString(R.string.domain);
-                String requestUrl = domain + "/pictag/removeTagForUser.php";
-                try{
-                    url = new URL(requestUrl);
-                    HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
-                    myConnection.setReadTimeout(15000);
-                    myConnection.setConnectTimeout(15000);
-                    myConnection.setRequestMethod("POST");
-                    myConnection.setDoInput(true);
-                    myConnection.setDoOutput(true);
-
-                    OutputStream os = myConnection.getOutputStream();
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
-
-                    String requestJsonString = new JSONObject()
-                            .put("user_id", strings[0])
-                            .put("tag_id", strings[1])
-                            .toString();
-
-                    Log.d("REQUEST BODY : ", requestJsonString);
-                    bw.write(requestJsonString);
-                    bw.flush();
-                    bw.close();
-
-                    int responseCode = myConnection.getResponseCode();
-                    if (responseCode == HttpURLConnection.HTTP_OK){
-                        String line;
-                        BufferedReader br = new BufferedReader(new InputStreamReader(myConnection.getInputStream()));
-                        line = br.readLine();
-                        while(line != null){
-                            response += line;
-                            line = br.readLine();
-                        }
-                        br.close();
-                    } else{
-                        error = "Unable to delete tag!!";
-                        handler.post(new DisplayToast(error));
-                    }
-                    myConnection.disconnect();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-                return response;
-            }
-
-            @Override
-            protected void onPostExecute(String response) {
-                if (error.equalsIgnoreCase("") && response != null) {
-                    super.onPostExecute(response);
-                    Log.d("RESPONSE BODY: ", response);
                 }
             }
         }

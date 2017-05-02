@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -89,15 +90,19 @@ public class HomeActivity extends AppCompatActivity{
     };
 
     public void displayNewsFeed(){
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        /*FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.display_fragment, NewsFeedFragment.newInstance(0)).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null);
         transaction.commit();
+
         navigation.getMenu().getItem(0).setChecked(true);
         navigation.getMenu().getItem(1).setChecked(false);
         navigation.getMenu().getItem(2).setChecked(false);
         navigation.getMenu().getItem(3).setChecked(false);
         navigation.getMenu().getItem(4).setChecked(false);
+        */
+        View view = navigation.findViewById(R.id.navigation_newsfeed);
+        view.performClick();
     }
 
     private void loadTags() {
