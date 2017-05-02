@@ -1,3 +1,4 @@
 WS/SSH_KEYS/*
 .DS_Store
 .gitignore~
+PicTag/.idea/vcs.xml
