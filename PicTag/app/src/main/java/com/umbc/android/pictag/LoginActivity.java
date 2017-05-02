@@ -195,7 +195,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             }
                         }
                     } else {
-                        error = "Login failed!!";
+                        error = "Login failed!!!";
                         DisplayToast displayToast = new DisplayToast(error);
                         handler.post(displayToast);
                     }

@@ -1,6 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -8,11 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:colorBackground">@color/background_material_light</item>
         <item name="android:colorForeground">@color/foreground_material_light</item>
+        <item name="android:navigationBarColor">@color/foreground_material_light</item>
     </style>
-
-    <style name="TextAppearance.App.TextInputLayout" parent="@android:style/TextAppearance">
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
 </resources>

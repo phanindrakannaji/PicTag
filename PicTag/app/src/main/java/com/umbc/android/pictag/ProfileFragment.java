@@ -106,13 +106,13 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        updateUserButton.setOnClickListener(this);
+        //updateUserButton.setOnClickListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        updateUserButton.setOnClickListener(null);
+        //updateUserButton.setOnClickListener(null);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -150,7 +150,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                 input[6] = gender.getText().toString();
                 input[7] = "";
                 UpdateUserTask updateUserTask = new UpdateUserTask();
-                updateUserTask.execute(input);
+                //updateUserTask.execute(input);
                 break;
         }
     }

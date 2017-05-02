@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#47A891</color>
-    <color name="colorPrimaryDark">#398775</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#3bbdbd</color>
+    <color name="colorPrimaryDark">#36b1bf</color>
+    <color name="colorAccent">#45b29d</color>
     <color name="bottomTabBackground">#18839b</color>
     <color name="bottomTabSelected">#3a98ad</color>
     <color name="buttonBackground">#47A891</color>
+    <color name="background_material_light">#f7f9f4</color>
+    <color name="foreground_material_light">#334d5c</color>
+    <color name="primary_text_default_material_light">#334d5c</color>
 </resources>

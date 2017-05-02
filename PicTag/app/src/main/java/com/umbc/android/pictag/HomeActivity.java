@@ -62,7 +62,7 @@ public class HomeActivity extends AppCompatActivity{
             Fragment selectedFragment = null;
             switch (item.getItemId()) {
                 case R.id.navigation_newsfeed:
-                    selectedFragment = NewsFeedFragment.newInstance();
+                    selectedFragment = NewsFeedFragment.newInstance(0);
                     break;
                 case R.id.navigation_search:
                     selectedFragment = SearchFragment.newInstance();
@@ -90,7 +90,7 @@ public class HomeActivity extends AppCompatActivity{
 
     public void displayNewsFeed(){
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.display_fragment, NewsFeedFragment.newInstance()).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+        transaction.replace(R.id.display_fragment, NewsFeedFragment.newInstance(0)).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null);
         transaction.commit();
         navigation.getMenu().getItem(0).setChecked(true);
