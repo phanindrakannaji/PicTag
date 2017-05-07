@@ -1,5 +1,7 @@
 package com.umbc.android.pictag;
 
+import java.util.List;
+
 /**
  * Created by phani on 4/30/17.
  */
@@ -11,6 +13,20 @@ public class Tag {
     private String tagName;
     private String notify;
     private int minVotes;
+    int count;
+    int currentIndex;
+    List<Post> posts;
+
+    public Tag(int userId, int tagId, String tagName, String notify, int minVotes, int count, int currentIndex, List<Post> posts) {
+        this.userId = userId;
+        this.tagId = tagId;
+        this.tagName = tagName;
+        this.notify = notify;
+        this.minVotes = minVotes;
+        this.count = count;
+        this.currentIndex = currentIndex;
+        this.posts = posts;
+    }
 
     public Tag(int userId, int tagId, String tagName, String notify, int minVotes) {
         this.userId = userId;
@@ -18,6 +34,30 @@ public class Tag {
         this.tagName = tagName;
         this.notify = notify;
         this.minVotes = minVotes;
+    }
+
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
+
+    public void setCurrentIndex(int currentIndex) {
+        this.currentIndex = currentIndex;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
     }
 
     public int getUserId() {
