@@ -7,16 +7,30 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.umbc.android.pictag.adapter.UserProfileAdapter;
+import com.umbc.android.pictag.utils.CircleTransformation;
+import com.umbc.android.pictag.view.RevealBackgroundView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +45,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
@@ -42,11 +59,13 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment implements View.OnClickListener {
+public class ProfileFragment extends Fragment implements View.OnClickListener , RevealBackgroundView.OnStateChangeListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -57,6 +76,30 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     EditText firstName, lastName, dateOfBirth;
     RadioGroup radioGroup;
     RadioButton gender;
+
+
+
+
+    RevealBackgroundView vRevealBackground;
+
+    RecyclerView rvUserProfile;
+
+
+    TabLayout tlUserProfileTabs;
+
+    ImageView ivUserProfilePhoto;
+    TextView tvUsername,tvPhonenumber,tvEmail;
+    FloatingActionButton fbEditUser;
+    View vUserDetails;
+
+    View vUserProfileRoot;
+
+    private int avatarSize;
+    private String profilePhoto;
+    private UserProfileAdapter userPhotosAdapter;
+
+    private static final int USER_OPTIONS_ANIMATION_DELAY = 300;
+    private static final Interpolator INTERPOLATOR = new DecelerateInterpolator();
 
     private OnFragmentInteractionListener mListener;
     UserProfile userProfile;
@@ -95,12 +138,76 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         parentView = inflater.inflate(R.layout.fragment_profile, container, false);
         updateUserButton = (Button) parentView.findViewById(R.id.postTopBack);//TODO change this
-        firstName = (EditText) parentView.findViewById(R.id.signupFirstName);
-        lastName = (EditText) parentView.findViewById(R.id.signupLastName);
-        dateOfBirth = (EditText) parentView.findViewById(R.id.signupDob);
-        radioGroup = (RadioGroup) parentView.findViewById(R.id.signupGender);
+
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
+
+        //ButterKnife.bind(getActivity());
+
+        vRevealBackground = (RevealBackgroundView) parentView.findViewById(R.id.vRevealBackground);
+        rvUserProfile = (RecyclerView) parentView.findViewById(R.id.rvUserProfile);
+        tlUserProfileTabs = (TabLayout) parentView.findViewById(R.id.tlUserProfileTabs);
+        ivUserProfilePhoto = (ImageView) parentView.findViewById(R.id.ivUserProfilePhoto);
+        vUserDetails = (View) parentView.findViewById(R.id.vUserDetails);
+        vUserProfileRoot = (View) parentView.findViewById(R.id.vUserProfileRoot);
+
+        this.avatarSize = getResources().getDimensionPixelSize(R.dimen.user_profile_avatar_size);
+        this.profilePhoto = getString(R.string.user_profile_photo);
+
+        tvUsername = (TextView) parentView.findViewById(R.id.tv_username);
+        tvPhonenumber = (TextView) parentView.findViewById(R.id.tv_phonenumber);
+        tvEmail = (TextView) parentView.findViewById(R.id.tv_userid);
+        setupUserProfile();
+
+        Picasso.with(getApplicationContext())
+                .load(profilePhoto)
+                .placeholder(R.drawable.img_circle_placeholder)
+                .resize(avatarSize, avatarSize)
+                .centerCrop()
+                .transform(new CircleTransformation())
+                .into(ivUserProfilePhoto);
+
+
+
+        setupTabs();
+        setupUserProfileGrid();
+        setupRevealBackground(savedInstanceState);
+
         return parentView;
+    }
+
+    private void setupUserProfile() {
+        tvUsername.setText(userProfile.getFirstName() + " "+ userProfile.getLastName());
+        tvEmail.setText(userProfile.getEmail());
+        tvPhonenumber.setText(String.valueOf(userProfile.getReputation()));
+        profilePhoto = userProfile.getProfilePicUrl();
+        profilePhoto = "http://scriptmode.com/googleandroidstudio/img/anyone.png";
+    }
+
+
+    private void setupTabs() {
+        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_grid_on_white));
+        tlUserProfileTabs.addTab(tlUserProfileTabs.newTab().setIcon(R.drawable.ic_list_white));
+
+    }
+
+    private void setupUserProfileGrid() {
+        final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        rvUserProfile.setLayoutManager(layoutManager);
+        rvUserProfile.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                userPhotosAdapter.setLockedAnimations(true);
+            }
+        });
+    }
+
+
+    private void setupRevealBackground(Bundle savedInstanceState) {
+        vRevealBackground.setOnStateChangeListener(this);
+
+            vRevealBackground.setToFinishedFrame();
+            userPhotosAdapter.setLockedAnimations(true);
+
     }
 
     @Override
@@ -155,6 +262,40 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onStateChange(int state) {
+        if (RevealBackgroundView.STATE_FINISHED == state) {
+            rvUserProfile.setVisibility(View.VISIBLE);
+            tlUserProfileTabs.setVisibility(View.VISIBLE);
+            vUserProfileRoot.setVisibility(View.VISIBLE);
+            userPhotosAdapter = new UserProfileAdapter(getApplicationContext());
+            rvUserProfile.setAdapter(userPhotosAdapter);
+            animateUserProfileOptions();
+            animateUserProfileHeader();
+        } else {
+            tlUserProfileTabs.setVisibility(View.INVISIBLE);
+            rvUserProfile.setVisibility(View.INVISIBLE);
+            vUserProfileRoot.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    private void animateUserProfileOptions() {
+        tlUserProfileTabs.setTranslationY(-tlUserProfileTabs.getHeight());
+        tlUserProfileTabs.animate().translationY(0).setDuration(300).setStartDelay(USER_OPTIONS_ANIMATION_DELAY).setInterpolator(INTERPOLATOR);
+    }
+
+    private void animateUserProfileHeader() {
+        vUserProfileRoot.setTranslationY(-vUserProfileRoot.getHeight());
+        ivUserProfilePhoto.setTranslationY(-ivUserProfilePhoto.getHeight());
+        vUserDetails.setTranslationY(-vUserDetails.getHeight());
+
+
+        vUserProfileRoot.animate().translationY(0).setDuration(300).setInterpolator(INTERPOLATOR);
+        ivUserProfilePhoto.animate().translationY(0).setDuration(300).setStartDelay(100).setInterpolator(INTERPOLATOR);
+        vUserDetails.animate().translationY(0).setDuration(300).setStartDelay(200).setInterpolator(INTERPOLATOR);
+
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

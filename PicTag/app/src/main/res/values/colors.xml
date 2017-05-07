@@ -9,4 +9,13 @@
     <color name="background_material_light">#f7f9f4</color>
     <color name="foreground_material_light">#334d5c</color>
     <color name="primary_text_default_material_light">#334d5c</color>
+
+    <color name="btn_default_light_normal">#00000000</color>
+    <color name="btn_default_light_pressed">#40ffffff</color>
+
+    <color name="btn_send_normal">#02c754</color>
+    <color name="btn_send_pressed">#006633</color>
+    <color name="btn_default_shadow">#99000000</color>
+
+
 </resources>
