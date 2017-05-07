@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -45,11 +46,15 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import clarifai2.api.ClarifaiBuilder;
 import clarifai2.api.ClarifaiClient;
+import clarifai2.api.ClarifaiResponse;
 import clarifai2.dto.input.ClarifaiInput;
 import clarifai2.dto.input.image.ClarifaiImage;
+import clarifai2.dto.model.output.ClarifaiOutput;
+import clarifai2.dto.prediction.Concept;
 
 public class HomeActivity extends AppCompatActivity{
 
@@ -259,12 +264,10 @@ public class HomeActivity extends AppCompatActivity{
 
                                 if (downloadUrl != null) {
                                     cameraFragment.setDownloadUrl(downloadUrl.toString());
-
-                                    client.getDefaultModels().generalModel().predict()
-                                            .withInputs(
-                                                    ClarifaiInput.forImage(ClarifaiImage.of(String.valueOf(downloadUrl)))
-                                            )
-                                            .executeSync();
+                                    String[] input = new String[1];
+                                    input[0] = downloadUrl.toString().replace("\\/", "/").replace("//", "/").replace("https:/", "https://");
+                                    ClarifaiTask clarifaiTask = new ClarifaiTask();
+                                    clarifaiTask.execute(input);
                                 }
                             }
                         })
@@ -280,7 +283,6 @@ public class HomeActivity extends AppCompatActivity{
             } else{
                 Log.d("Error in capture intent", String.valueOf(resultCode));
                 Bundle extras = data.getExtras();
-
             }
         } else if (requestCode == PICK_FROM_GALLERY){
             if (resultCode == RESULT_OK) {
@@ -344,6 +346,29 @@ public class HomeActivity extends AppCompatActivity{
             }
         }
     }
+
+    public class ClarifaiTask extends AsyncTask<String, Void, ClarifaiResponse<List<ClarifaiOutput<Concept>>>> {
+        @Override protected ClarifaiResponse<List<ClarifaiOutput<Concept>>> doInBackground(String... params) {
+            return client.getDefaultModels().generalModel().predict()
+                    .withInputs(
+                            ClarifaiInput.forImage(ClarifaiImage.of(String.valueOf(params[0])))
+                    )
+                    .executeSync();
+        }
+
+        @Override protected void onPostExecute(ClarifaiResponse<List<ClarifaiOutput<Concept>>> response) {
+            if (!response.isSuccessful()) {
+                handler.post(new DisplayToast("Error in Clarifai"));
+                return;
+            }
+            final List<ClarifaiOutput<Concept>> predictions = response.get();
+            if (predictions.isEmpty()) {
+                handler.post(new DisplayToast("Error in Clarifai: No results"));
+                return;
+            }
+            Log.d("PREDICTIONS", predictions.get(0).data().get(0).name());
+        }
+}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

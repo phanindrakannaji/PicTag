@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,8 +55,6 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
     private View parentView;
     List<Post> posts;
     private UserProfile userProfile;
-    private ItemAdapter itemAdapter;
-    private RecyclerView recyclerView;
 
     // TODO: Customize parameters
     public static NewsFeedFragment newInstance(int itemCount) {
@@ -75,26 +71,7 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
                              @Nullable Bundle savedInstanceState) {
         parentView = inflater.inflate(R.layout.fragment_news_feed, container, false);
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
-
         return parentView;
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        recyclerView = (RecyclerView) view;
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        itemAdapter = new ItemAdapter(getArguments().getInt(ARG_ITEM_COUNT));
-        recyclerView.setAdapter(itemAdapter);
-
-        String[] input = new String[1];
-        input[0] = userProfile.getId();
-        try {
-            GetPostsTask getPostsTask = new GetPostsTask();
-            getPostsTask.execute(input);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-
     }
 
     @Override
@@ -104,59 +81,11 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onDetach() {
-        mListener = null;
         super.onDetach();
     }
 
     public interface Listener {
         void onItemClicked(int position);
-    }
-
-    private class ViewHolder extends RecyclerView.ViewHolder {
-
-        final ImageView image;
-
-        ViewHolder(LayoutInflater inflater, ViewGroup parent) {
-            // TODO: Customize the item layout
-            super(inflater.inflate(R.layout.fragment_newsfeed_item, parent, false));
-            image = (ImageView) itemView.findViewById(R.id.newsfeedItem_image);
-            image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mListener != null) {
-                        mListener.onItemClicked(getAdapterPosition());
-                        dismiss();
-                    }
-                }
-            });
-        }
-
-    }
-
-    private class ItemAdapter extends RecyclerView.Adapter<ViewHolder> {
-
-        private final int mItemCount;
-
-        ItemAdapter(int itemCount) {
-            mItemCount = itemCount;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()), parent);
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
-            String imageUrl = posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/").replace("https:/", "https://");
-            ImageLoader imageLoader = new ImageLoader(imageUrl, holder.image);
-            imageLoader.execute();
-        }
-
-        @Override
-        public int getItemCount() {
-            return mItemCount;
-        }
     }
 
     private class ImageLoader extends AsyncTask<Void, Integer, Bitmap>{
@@ -327,10 +256,7 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
         ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                itemAdapter = new ItemAdapter(posts.size());
-                recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                recyclerView.setAdapter(itemAdapter);
-                recyclerView.invalidate();
+
             }
         });
     }
