@@ -46,6 +46,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import clarifai2.api.ClarifaiBuilder;
+import clarifai2.api.ClarifaiClient;
+import clarifai2.dto.input.ClarifaiInput;
+import clarifai2.dto.input.image.ClarifaiImage;
+
 public class HomeActivity extends AppCompatActivity{
 
     private static final int PICK_A_PHOTO = 100;
@@ -117,6 +122,7 @@ public class HomeActivity extends AppCompatActivity{
         }
 
     };
+    private ClarifaiClient client;
 
     public void displayNewsFeed(){
         View view = navigation.findViewById(R.id.navigation_newsfeed);
@@ -253,6 +259,12 @@ public class HomeActivity extends AppCompatActivity{
 
                                 if (downloadUrl != null) {
                                     cameraFragment.setDownloadUrl(downloadUrl.toString());
+
+                                    client.getDefaultModels().generalModel().predict()
+                                            .withInputs(
+                                                    ClarifaiInput.forImage(ClarifaiImage.of(String.valueOf(downloadUrl)))
+                                            )
+                                            .executeSync();
                                 }
                             }
                         })
@@ -390,6 +402,7 @@ public class HomeActivity extends AppCompatActivity{
         }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         displayNewsFeed();
+        client = new ClarifaiBuilder(getString(R.string.clarifaiClientId), getString(R.string.clarifaiClientSecret)).buildSync();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -48,7 +48,7 @@
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:id="@+id/newImage"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_below="@+id/postTopBack"
                 android:layout_alignStart="@+id/tv_price" />
 
@@ -177,7 +177,6 @@
                 android:layout_centerHorizontal="true"
                 android:backgroundTint="@color/colorPrimary"
                 android:layout_below="@+id/tv_category"
-
                 />
 
         </RelativeLayout>

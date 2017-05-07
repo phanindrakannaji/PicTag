@@ -33,4 +33,6 @@
     <string name="auth_failed">Login unsuccessful</string>
     <string name="login_auth_failed">SignUp failed</string>
     <string name="domain">http://ec2-54-174-220-13.compute-1.amazonaws.com</string>
+    <string name="clarifaiClientId">YyKG87VfH0iVXcNtHnQ2VLVceb9aDPo-wiWVC06T</string>
+    <string name="clarifaiClientSecret">141hQrFCyRFFt6PgyS_OgiaAroltDm3sfHdtmb4S</string>
 </resources>

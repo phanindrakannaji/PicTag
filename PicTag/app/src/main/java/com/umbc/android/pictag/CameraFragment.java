@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -35,6 +36,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import clarifai2.api.ClarifaiClient;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
@@ -46,7 +49,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Use the {@link CameraFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CameraFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class CameraFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -64,6 +67,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
     Spinner watermark, category;
     List<StringWithTag> categories;
     List<StringWithTag> watermarks;
+    int selectedCategory = 0, selectedWatermark = 0;
 
     UserProfile userProfile;
 
@@ -123,6 +127,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
 
         watermark = (Spinner) view.findViewById(R.id.watermark);
         category = (Spinner) view.findViewById(R.id.category);
+
+        watermark.setOnItemSelectedListener(this);
+        category.setOnItemSelectedListener(this);
 
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
         return view;
@@ -190,8 +197,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
         input[3] = (String.valueOf(price.getText()).equalsIgnoreCase(""))?"0":String.valueOf(price.getText());
         input[4] = String.valueOf(description.getText());
         input[5] = privateSwitch.isChecked()?"Y":"N";
-        input[6] = watermark.getSelectedItem()==null?"0":watermark.getSelectedItem().toString();
-        input[7] = category.getSelectedItem()==null?"0":category.getSelectedItem().toString();
+        input[6] = String.valueOf(selectedWatermark);
+        input[7] = String.valueOf(selectedCategory);
 
         CreatePostTask createPostTask = new CreatePostTask();
         createPostTask.execute(input);
@@ -220,6 +227,25 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        switch(adapterView.getId()){
+            case R.id.watermark:
+                StringWithTag watermarkSWT = (StringWithTag) adapterView.getItemAtPosition(i);
+                selectedWatermark = Integer.valueOf((String) watermarkSWT.tag);
+                break;
+            case R.id.category:
+                StringWithTag categorySWT = (StringWithTag) adapterView.getItemAtPosition(i);
+                selectedCategory = Integer.valueOf((String) categorySWT.tag);
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 
 
