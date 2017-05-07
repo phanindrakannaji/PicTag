@@ -12,6 +12,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.method.KeyListener;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,7 +90,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
 
     ImageView ivUserProfilePhoto;
     TextView tvUsername,tvPhonenumber,tvEmail;
-    FloatingActionButton fbEditUser;
+    FloatingActionButton fbEditUser,fbsaveuser;
     View vUserDetails;
 
     View vUserProfileRoot;
@@ -104,6 +105,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
     private OnFragmentInteractionListener mListener;
     UserProfile userProfile;
     private View parentView;
+
+    KeyListener klusername;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -149,13 +152,23 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         ivUserProfilePhoto = (ImageView) parentView.findViewById(R.id.ivUserProfilePhoto);
         vUserDetails = (View) parentView.findViewById(R.id.vUserDetails);
         vUserProfileRoot = (View) parentView.findViewById(R.id.vUserProfileRoot);
+        fbEditUser = (FloatingActionButton) parentView.findViewById(R.id.btnEditUserInfo);
+        fbEditUser.setOnClickListener(this);
+
+        fbsaveuser = (FloatingActionButton) parentView.findViewById(R.id.btnSaveUserInfo);
+        fbsaveuser.setOnClickListener(this);
 
         this.avatarSize = getResources().getDimensionPixelSize(R.dimen.user_profile_avatar_size);
         this.profilePhoto = getString(R.string.user_profile_photo);
 
         tvUsername = (TextView) parentView.findViewById(R.id.tv_username);
-        tvPhonenumber = (TextView) parentView.findViewById(R.id.tv_phonenumber);
+        tvPhonenumber = (TextView) parentView.findViewById(R.id.tv_reputation);
         tvEmail = (TextView) parentView.findViewById(R.id.tv_userid);
+        klusername = tvUsername.getKeyListener();
+        tvUsername.setKeyListener(null);
+
+
+
         setupUserProfile();
 
         Picasso.with(getApplicationContext())
@@ -258,6 +271,21 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
                 input[7] = "";
                 UpdateUserTask updateUserTask = new UpdateUserTask();
                 //updateUserTask.execute(input);
+                break;
+            case R.id.btnEditUserInfo:
+                fbEditUser.hide();
+                fbsaveuser.show();
+                ivUserProfilePhoto.setClickable(true);
+                ivUserProfilePhoto.setOnClickListener(this);
+                tvUsername.setKeyListener(klusername);
+                break;
+            case R.id.btnSaveUserInfo:
+                Toast.makeText(getActivity(),"User Info Updated",Toast.LENGTH_LONG).show();
+                tvUsername.setKeyListener(null);
+                fbsaveuser.hide();
+                fbEditUser.show();
+                break;
+            case R.id.ivUserProfilePhoto:
                 break;
         }
     }
