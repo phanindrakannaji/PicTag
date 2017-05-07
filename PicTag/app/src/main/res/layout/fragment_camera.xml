@@ -176,7 +176,7 @@
                 android:layout_margin="15dp"
                 android:layout_centerHorizontal="true"
                 android:backgroundTint="@color/colorPrimary"
-                android:layout_below="@+id/tv_watermark"
+                android:layout_below="@+id/tv_category"
 
                 />
 

@@ -29,7 +29,7 @@ $error = "";
 $errorOccurred = false;
 
 $query = "INSERT INTO $table(user_id, image_url, is_Priced, price, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', $price, '$description', now(), now(), 'Y', '$isPrivate', '$watermarkId', '$category', 0, 0)";
-echo $query;
+//echo $query;
 $result = $mysqli->query($query);
 if(!$result)
 {

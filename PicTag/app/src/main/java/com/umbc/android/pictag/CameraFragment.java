@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -45,7 +46,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Use the {@link CameraFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CameraFragment extends Fragment implements View.OnClickListener{
+public class CameraFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -115,6 +116,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
         priceSwitch = (Switch) view.findViewById(R.id.priceSwitch);
         privateSwitch = (Switch) view.findViewById(R.id.privateSwitch);
         watermarkSwitch = (Switch) view.findViewById(R.id.watermarkSwitch);
+
+        priceSwitch.setOnCheckedChangeListener(this);
+        privateSwitch.setOnCheckedChangeListener(this);
+        watermarkSwitch.setOnCheckedChangeListener(this);
 
         watermark = (Spinner) view.findViewById(R.id.watermark);
         category = (Spinner) view.findViewById(R.id.category);
@@ -190,6 +195,31 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
 
         CreatePostTask createPostTask = new CreatePostTask();
         createPostTask.execute(input);
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        switch(compoundButton.getId()){
+            case R.id.priceSwitch:
+                if (b) {
+                    tvPriceSymbol.setVisibility(View.VISIBLE);
+                    price.setVisibility(View.VISIBLE);
+                } else{
+                    tvPriceSymbol.setVisibility(View.INVISIBLE);
+                    price.setVisibility(View.INVISIBLE);
+                }
+                break;
+            case R.id.privateSwitch:
+
+                break;
+            case R.id.watermarkSwitch:
+                if (b) {
+                    watermark.setVisibility(View.VISIBLE);
+                } else{
+                    watermark.setVisibility(View.INVISIBLE);
+                }
+                break;
+        }
     }
 
 
@@ -412,10 +442,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     }
 
     public void setCategories(){
-        ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ArrayAdapter<StringWithTag> categoryAdapter = new ArrayAdapter<>((HomeActivity)getActivity(), android.R.layout.simple_spinner_item, categories);
+                ArrayAdapter<StringWithTag> categoryAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, categories);
                 categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 category.setAdapter(categoryAdapter);
             }
@@ -423,10 +453,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener{
     }
 
     public void setWatermarks(){
-        ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ArrayAdapter<StringWithTag> watermarkAdapter = new ArrayAdapter<>((HomeActivity)getActivity(), android.R.layout.simple_spinner_item, watermarks);
+                ArrayAdapter<StringWithTag> watermarkAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, watermarks);
                 watermarkAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 watermark.setAdapter(watermarkAdapter);
             }

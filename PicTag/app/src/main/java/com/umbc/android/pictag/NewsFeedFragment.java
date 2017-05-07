@@ -88,8 +88,12 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
 
         String[] input = new String[1];
         input[0] = userProfile.getId();
-        GetPostsTask getPostsTask = new GetPostsTask();
-        getPostsTask.execute(input);
+        try {
+            GetPostsTask getPostsTask = new GetPostsTask();
+            getPostsTask.execute(input);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -144,9 +148,9 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            String imageUrl = posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/");
-            BitmapProvider bitmapProvider = new BitmapProvider(imageUrl, holder.image);
-            bitmapProvider.execute();
+            String imageUrl = posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/").replace("https:/", "https://");
+            ImageLoader imageLoader = new ImageLoader(imageUrl, holder.image);
+            imageLoader.execute();
         }
 
         @Override
@@ -155,12 +159,12 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private class BitmapProvider extends AsyncTask<Void, Integer, Bitmap>{
+    private class ImageLoader extends AsyncTask<Void, Integer, Bitmap>{
 
         String imageUrl;
         ImageView imageView;
 
-        BitmapProvider(String imageUrl, ImageView imageView) {
+        ImageLoader(String imageUrl, ImageView imageView) {
             this.imageUrl = imageUrl;
             this.imageView = imageView;
         }
@@ -172,7 +176,9 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
             try {
                 Log.d("URL: ", imageUrl);
                 in = (InputStream) new URL(imageUrl).getContent();
-                bitmap = BitmapFactory.decodeStream(in); //Decodes the stream returned from getContent and converts It into a Bitmap Format
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inSampleSize = 4;
+                bitmap = BitmapFactory.decodeStream(in, null, opts); //Decodes the stream returned from getContent and converts It into a Bitmap Format
             } catch (IOException e) {
                 e.printStackTrace();
             }

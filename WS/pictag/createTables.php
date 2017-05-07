@@ -261,6 +261,21 @@ if ($insertParameters){
 		}
 		$num = $num + 1;
 	}
+
+	$watermarks = array("General", "Advanced");
+
+	$prefix = "INSERT INTO parameters (name, value, group_name, created_date, last_updated_date) VALUES ('";
+	$suffix = "', 'WATERMARK', now(), now())";
+	$num = 1;
+	foreach ($watermarks as $watermark){
+		$query = $prefix . $num . "', '" . $mysqli->real_escape_string($watermark) . $suffix;
+		echo $query . "<br/>";
+		if (!$mysqli->query($query)) {
+			echo "[ERROR] Failed to insert into " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error;
+		    die("[ERROR] Failed to insert into " . $table . " : (" . $mysqli->errno . ") " . $mysqli->error);
+		}
+		$num = $num + 1;
+	}
 	echo "Insertion of parameters successful!!";
 }
 

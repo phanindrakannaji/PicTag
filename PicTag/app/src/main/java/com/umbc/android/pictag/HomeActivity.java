@@ -1,9 +1,12 @@
 package com.umbc.android.pictag;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,17 +14,23 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -33,7 +42,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,6 +49,7 @@ import java.util.Date;
 public class HomeActivity extends AppCompatActivity{
 
     private static final int PICK_A_PHOTO = 100;
+    private static final int PICK_FROM_GALLERY = 101;
     private static final String TAG = "HomeActivity";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 110;
     CameraFragment cameraFragment;
@@ -71,7 +80,27 @@ public class HomeActivity extends AppCompatActivity{
                 case R.id.navigation_camera:
                     selectedFragment = CameraFragment.newInstance();
                     cameraFragment = (CameraFragment) selectedFragment;
-                    takeAndSavePic();
+                    final CharSequence[] options = { "Click epic", "Choose from Gallery","Cancel" };
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+
+                    builder.setTitle("Add Photo!");
+
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int item) {
+                            if (options[item].equals("Click epic")) {
+                                takeAndSavePic();
+                            } else if (options[item].equals("Choose from Gallery")) {
+                                Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                startActivityForResult(intent, PICK_FROM_GALLERY);
+                            } else if (options[item].equals("Cancel")) {
+                                dialog.dismiss();
+                                displayNewsFeed();
+                            }
+                        }
+                    });
+                    builder.show();
                     break;
                 case R.id.navigation_tags:
                     selectedFragment = TagsFragment.newInstance();
@@ -90,17 +119,6 @@ public class HomeActivity extends AppCompatActivity{
     };
 
     public void displayNewsFeed(){
-        /*FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.display_fragment, NewsFeedFragment.newInstance(0)).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null);
-        transaction.commit();
-
-        navigation.getMenu().getItem(0).setChecked(true);
-        navigation.getMenu().getItem(1).setChecked(false);
-        navigation.getMenu().getItem(2).setChecked(false);
-        navigation.getMenu().getItem(3).setChecked(false);
-        navigation.getMenu().getItem(4).setChecked(false);
-        */
         View view = navigation.findViewById(R.id.navigation_newsfeed);
         view.performClick();
     }
@@ -127,6 +145,12 @@ public class HomeActivity extends AppCompatActivity{
                 ex.printStackTrace();
             }
             if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.umbc.android.pictag",
+                        photoFile);
+                getApplicationContext().grantUriPermission("com.umbc.android.pictag", photoURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Log.d("Photo URI: ", photoURI.toString());
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, PICK_A_PHOTO);
             }
         }
@@ -170,11 +194,10 @@ public class HomeActivity extends AppCompatActivity{
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         imageFileName = "PNG_" + timeStamp + "_";
 
-        File storageDir = new File(Environment.getExternalStorageDirectory() + File.separator + "DCIM" + File.separator + "PicTag");
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         boolean success = storageDir.mkdirs();
         Log.d("CHECKIFEXISTS", String.valueOf(success));
         requestPermissions();
-        //File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".png",         /* suffix */
@@ -182,6 +205,7 @@ public class HomeActivity extends AppCompatActivity{
         );
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
+        Log.d("PATH OF IMAGE" , mCurrentPhotoPath);
         return image;
     }
 
@@ -193,37 +217,40 @@ public class HomeActivity extends AppCompatActivity{
         this.sendBroadcast(mediaScanIntent);
     }
 
-
-
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_A_PHOTO) {
             if (resultCode == RESULT_OK) {
-                Bundle extras = data.getExtras();
-                final Bitmap imageBitmap = (Bitmap) extras.get("data");
-                try {
-                    FileOutputStream fileOutputStream = new FileOutputStream(new File(mCurrentPhotoPath));
-                    if (imageBitmap != null) {
-                        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-                    }
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
                 galleryAddPic();
-
                 Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
+                Log.d("Sending file path: ", file.getPath());
                 StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
-
                 riversRef.putFile(file)
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 // Get a URL to the uploaded content
                                 Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                // Get the dimensions of the View
+                                int targetW = 200;
+                                int targetH = 200;
+
+                                // Get the dimensions of the bitmap
+                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                bmOptions.inJustDecodeBounds = true;
+                                BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+                                int photoW = bmOptions.outWidth;
+                                int photoH = bmOptions.outHeight;
+
+                                // Determine how much to scale down the image
+                                int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+                                // Decode the image file into a Bitmap sized to fill the View
+                                bmOptions.inJustDecodeBounds = false;
+                                bmOptions.inSampleSize = scaleFactor;
+                                Bitmap imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
                                 cameraFragment.setNewImage(imageBitmap);
+
                                 if (downloadUrl != null) {
                                     cameraFragment.setDownloadUrl(downloadUrl.toString());
                                 }
@@ -234,8 +261,74 @@ public class HomeActivity extends AppCompatActivity{
                             public void onFailure(@NonNull Exception exception) {
                                 // Handle unsuccessful uploads
                                 // ...
+                                Log.d("FirebaseException: ", exception.getMessage());
+                                exception.printStackTrace();
                             }
                         });
+            } else{
+                Log.d("Error in capture intent", String.valueOf(resultCode));
+                Bundle extras = data.getExtras();
+
+            }
+        } else if (requestCode == PICK_FROM_GALLERY){
+            if (resultCode == RESULT_OK) {
+                Uri selectedImage = data.getData();
+                String[] filePath = {MediaStore.Images.Media.DATA};
+                Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
+                if (c != null) {
+                    c.moveToFirst();
+                    int columnIndex = c.getColumnIndex(filePath[0]);
+                    mCurrentPhotoPath = c.getString(columnIndex);
+                    c.close();
+                    //Bitmap thumbnail = (BitmapFactory.decodeFile(mCurrentPhotoPath));
+                }
+                Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+                imageFileName = "PNG_" + timeStamp + ".png";
+                Log.d("Sending file path: ", file.getPath());
+                StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
+                riversRef.putFile(file)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                // Get a URL to the uploaded content
+                                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                                // Get the dimensions of the View
+                                int targetW = 200;
+                                int targetH = 200;
+
+                                // Get the dimensions of the bitmap
+                                BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                                bmOptions.inJustDecodeBounds = true;
+                                BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+                                int photoW = bmOptions.outWidth;
+                                int photoH = bmOptions.outHeight;
+
+                                // Determine how much to scale down the image
+                                int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+                                // Decode the image file into a Bitmap sized to fill the View
+                                bmOptions.inJustDecodeBounds = false;
+                                bmOptions.inSampleSize = scaleFactor;
+                                Bitmap imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+                                cameraFragment.setNewImage(imageBitmap);
+
+                                if (downloadUrl != null) {
+                                    cameraFragment.setDownloadUrl(downloadUrl.toString());
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle unsuccessful uploads
+                                // ...
+                                Log.d("FirebaseException: ", exception.getMessage());
+                                exception.printStackTrace();
+                            }
+                        });
+            } else{
+
             }
         }
     }
@@ -284,7 +377,19 @@ public class HomeActivity extends AppCompatActivity{
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) navigation.getChildAt(0);
+        for (int i = 0; i < menuView.getChildCount(); i++) {
+            final View iconView = menuView.getChildAt(i).findViewById(android.support.design.R.id.icon);
+            final ViewGroup.LayoutParams layoutParams = iconView.getLayoutParams();
+            final DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            // set your height here
+            layoutParams.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 26, displayMetrics);
+            // set your width here
+            layoutParams.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 26, displayMetrics);
+            iconView.setLayoutParams(layoutParams);
+        }
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        displayNewsFeed();
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
