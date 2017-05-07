@@ -168,6 +168,28 @@
                 android:layout_alignStart="@id/watermarkSwitch"
                 android:layout_below="@+id/tv_watermark" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_newpictags"
+                android:layout_margin="20dp"
+                android:layout_below="@+id/tv_category"
+                android:text="Generated Tags"/>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/newpicscrolltags"
+                android:layout_below="@+id/tv_newpictags">
+                <ListView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_newpictags"
+                    android:id="@+id/newPicTags">
+
+                </ListView>
+            </ScrollView>
+
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -176,7 +198,7 @@
                 android:layout_margin="15dp"
                 android:layout_centerHorizontal="true"
                 android:backgroundTint="@color/colorPrimary"
-                android:layout_below="@+id/tv_category"
+                android:layout_below="@+id/newpicscrolltags"
                 />
 
         </RelativeLayout>

@@ -6,18 +6,18 @@ import java.util.List;
  * Created by phani on 4/30/17.
  */
 
-public class Tag {
+class Tag {
 
     private int userId;
     private int tagId;
     private String tagName;
     private String notify;
     private int minVotes;
-    int count;
-    int currentIndex;
-    List<Post> posts;
+    private int count;
+    private int currentIndex;
+    private List<Post> posts;
 
-    public Tag(int userId, int tagId, String tagName, String notify, int minVotes, int count, int currentIndex, List<Post> posts) {
+    Tag(int userId, int tagId, String tagName, String notify, int minVotes, int count, int currentIndex, List<Post> posts) {
         this.userId = userId;
         this.tagId = tagId;
         this.tagName = tagName;
@@ -28,7 +28,7 @@ public class Tag {
         this.posts = posts;
     }
 
-    public Tag(int userId, int tagId, String tagName, String notify, int minVotes) {
+    Tag(int userId, int tagId, String tagName, String notify, int minVotes) {
         this.userId = userId;
         this.tagId = tagId;
         this.tagName = tagName;
