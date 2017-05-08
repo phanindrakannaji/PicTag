@@ -128,7 +128,7 @@ if ($createTags){
 
 	if (!$mysqli->query("CREATE TABLE " . $table . "(
 		tag_id INT AUTO_INCREMENT PRIMARY KEY,
-		tag VARCHAR(20),
+		tag VARCHAR(50),
 		created_date DATETIME,
 		last_updated_date DATETIME,
 		last_alerted_date DATETIME

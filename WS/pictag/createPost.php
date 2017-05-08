@@ -13,6 +13,11 @@ $description = $data["description"];
 $isPrivate = $data["isPrivate"];
 $watermarkId = $data["watermarkId"];
 $category = $data["category"];
+$tagsJson = $data["tags"];
+$tagsJson = str_replace("[", "", $tagsJson);
+$tagsJson = str_replace("]", "", $tagsJson);
+$tags = array();
+$tags = explode(",", $tagsJson);
 
 $table = "posts";
 
@@ -29,13 +34,13 @@ $error = "";
 $errorOccurred = false;
 
 $query = "INSERT INTO $table(user_id, image_url, is_Priced, price, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', $price, '$description', now(), now(), 'Y', '$isPrivate', '$watermarkId', '$category', 0, 0)";
-//echo $query;
 $result = $mysqli->query($query);
 if(!$result)
 {
-	$error = "Register: Data was not inserted into the table " . $mysqli->error . "\n";
+	$error = "CreatePost: Data was not inserted into the table " . $mysqli->error . "\n";
 	$errorOccurred = true;
 }
+$postIdForTags = 0;
 
 $jsonMainArr = array();
 if ($errorOccurred){
@@ -44,11 +49,46 @@ if ($errorOccurred){
 	$jsonMainArr[] = $jsonArr;
 } else{
 	$res = $mysqli->query("SELECT post_id
-	  FROM " .$table. " WHERE user_id = $userId and LOWER(image_url) = LOWER('$picUrl') ORDER BY created_date DESC");
+	  FROM " .$table. " WHERE user_id = $userId and LOWER(image_url) = LOWER('$picUrl') and price = $price and description = '$description' ORDER BY created_date DESC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
 		$jsonArr["postId"] = $row['post_id'];
+		$postIdForTags = $row['post_id'];
 	    $jsonMainArr[] = $jsonArr;
+	}
+}
+
+if (count($tags) > 0){
+	foreach ($tags as $tag) {
+		$tag = str_replace(" ", "", $tag);
+		$query1 = "SELECT tag_id from tags where LOWER(tag) = LOWER('$tag')";
+		$res1 = $mysqli->query($query1);
+		if(!$res1 || $res1->num_rows == 0){
+			$query2 = "INSERT INTO tags (tag, created_date, last_updated_date, last_alerted_date) VALUES (LOWER('$tag'), now(), now(), now())";
+			
+			$res2 = $mysqli->query($query2);
+			if(!$res2){
+				$error = "CreateTag: Data was not inserted into the table " . $mysqli->error . "\n";
+				$errorOccurred = true;
+			}
+		} 
+		$query3 = "SELECT tag_id from tags where LOWER(tag) = LOWER('$tag')";
+		$res3 = $mysqli->query($query3);
+		if(!$res3 || $res3->num_rows == 0){
+			$error = "CreatePostTag: Data was not inserted into the table " . $mysqli->error . "\n";
+			$errorOccurred = true;
+		} else{
+			while ($row3 = $res3->fetch_assoc()){
+				$tag_id = $row3['tag_id'];
+				$query4 = "INSERT INTO post_tags(post_id, tag_id, type) VALUES ($postIdForTags, $tag_id, 'A')";
+				$res4 = $mysqli->query($query4);
+				if(!$res4)
+				{
+					$error = "CreatePostTag: Data was not inserted into the table " . $mysqli->error . "\n";
+					$errorOccurred = true;
+				}
+			}
+		}
 	}
 }
 
@@ -56,6 +96,4 @@ header('Content-type: application/json');
 echo json_encode($jsonMainArr);
 
 $mysqli->close();
-
-
 ?>

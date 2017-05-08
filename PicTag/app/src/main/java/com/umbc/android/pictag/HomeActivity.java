@@ -41,10 +41,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.plumillonforge.android.chipview.Chip;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -333,6 +335,10 @@ public class HomeActivity extends AppCompatActivity{
 
                                 if (downloadUrl != null) {
                                     cameraFragment.setDownloadUrl(downloadUrl.toString());
+                                    String[] input = new String[1];
+                                    input[0] = downloadUrl.toString().replace("\\/", "/").replace("//", "/").replace("https:/", "https://");
+                                    ClarifaiTask clarifaiTask = new ClarifaiTask();
+                                    clarifaiTask.execute(input);
                                 }
                             }
                         })
@@ -376,9 +382,19 @@ public class HomeActivity extends AppCompatActivity{
             final List<ClarifaiOutput<Concept>> predictions = response.get();
             if (predictions.isEmpty()) {
                 handler.post(new DisplayToast("Error in Clarifai: No results"));
-                return;
+            } else {
+                Log.d("PREDICTIONS", predictions.get(0).data().get(0).name());
+                if (predictions.get(0).data().size() > 0){
+                    List<Chip> chipList = new ArrayList<>();
+                    List<String> tagNames = new ArrayList<>();
+                    for(Concept concept : predictions.get(0).data()) {
+                        chipList.add(new DisplayTag(concept.name()));
+                        tagNames.add(concept.name());
+                    }
+                    cameraFragment.setTagNames(tagNames);
+                    cameraFragment.setChipList(chipList);
+                }
             }
-            Log.d("PREDICTIONS", predictions.get(0).data().get(0).name());
         }
 }
 

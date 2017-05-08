@@ -21,6 +21,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.plumillonforge.android.chipview.Chip;
+import com.plumillonforge.android.chipview.ChipView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +38,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import clarifai2.api.ClarifaiClient;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -68,6 +69,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
     List<StringWithTag> categories;
     List<StringWithTag> watermarks;
     int selectedCategory = 0, selectedWatermark = 0;
+    ChipView newPicChipView;
+    List<String> tagNames;
 
     UserProfile userProfile;
 
@@ -105,34 +108,35 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_camera, container, false);
-        newImage = (ImageView) view.findViewById(R.id.newImage);
+        View parentView = inflater.inflate(R.layout.fragment_camera, container, false);
+        newPicChipView = (ChipView) parentView.findViewById(R.id.newPicChipview);
+        newImage = (ImageView) parentView.findViewById(R.id.newImage);
 
-        goBack = (Button) view.findViewById(R.id.postTopBack);
-        topDone = (Button) view.findViewById(R.id.postTopDone);
-        postPic = (Button) view.findViewById(R.id.postPic);
+        goBack = (Button) parentView.findViewById(R.id.postTopBack);
+        topDone = (Button) parentView.findViewById(R.id.postTopDone);
+        postPic = (Button) parentView.findViewById(R.id.postPic);
 
-        tvPriceSymbol = (TextView) view.findViewById(R.id.tv_price_symbol);
+        tvPriceSymbol = (TextView) parentView.findViewById(R.id.tv_price_symbol);
 
-        description = (EditText) view.findViewById(R.id.description);
-        price = (EditText) view.findViewById(R.id.price);
+        description = (EditText) parentView.findViewById(R.id.description);
+        price = (EditText) parentView.findViewById(R.id.price);
 
-        priceSwitch = (Switch) view.findViewById(R.id.priceSwitch);
-        privateSwitch = (Switch) view.findViewById(R.id.privateSwitch);
-        watermarkSwitch = (Switch) view.findViewById(R.id.watermarkSwitch);
+        priceSwitch = (Switch) parentView.findViewById(R.id.priceSwitch);
+        privateSwitch = (Switch) parentView.findViewById(R.id.privateSwitch);
+        watermarkSwitch = (Switch) parentView.findViewById(R.id.watermarkSwitch);
 
         priceSwitch.setOnCheckedChangeListener(this);
         privateSwitch.setOnCheckedChangeListener(this);
         watermarkSwitch.setOnCheckedChangeListener(this);
 
-        watermark = (Spinner) view.findViewById(R.id.watermark);
-        category = (Spinner) view.findViewById(R.id.category);
+        watermark = (Spinner) parentView.findViewById(R.id.watermark);
+        category = (Spinner) parentView.findViewById(R.id.category);
 
         watermark.setOnItemSelectedListener(this);
         category.setOnItemSelectedListener(this);
 
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
-        return view;
+        return parentView;
     }
 
     @Override
@@ -302,9 +306,10 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                         .put("isPrivate", strings[5])
                         .put("watermarkId", strings[6])
                         .put("category", strings[7])
+                        .put("tags", tagNames)
                         .toString();
 
-                Log.d("SIGNUP REQUEST BODY : ", requestJsonString);
+                Log.d("PostREQUESTBODY:", requestJsonString);
                 bw.write(requestJsonString);
                 bw.flush();
                 bw.close();
@@ -487,5 +492,14 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                 watermark.setAdapter(watermarkAdapter);
             }
         });
+    }
+
+    public void setChipList(List<Chip> chipList){
+        newPicChipView.setChipList(chipList);
+        newPicChipView.setChipBackgroundColor(getActivity().getResources().getColor(R.color.colorPrimary, getActivity().getTheme()));
+    }
+
+    public void setTagNames(List<String> tagNames){
+        this.tagNames = tagNames;
     }
 }
