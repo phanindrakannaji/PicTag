@@ -88,14 +88,11 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         adapter = new MainChipViewAdapter(getActivity().getApplicationContext());
         chipView.setAdapter(adapter);
 
-
         String[] input= new String[2];
         input[0] = String.valueOf(userProfile.getId());
         input[1] = ""; //search term  has to be here, if not send empty
         GetTagsTask getTagsTask = new GetTagsTask();
         getTagsTask.execute(input);
-
-        // Inflate the layout for this fragment
         return view;
     }
 
@@ -229,18 +226,12 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         protected void onPostExecute(List<Tag> tags) {
             super.onPostExecute(tags);
             if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
-                //TODO 1
-                // display the list of tags in some list view
-
                 for (Tag tag : tags) {
-                    chipList.add(new TagView(tag.getTagName(), 0, tag.isSelected()));
+                    chipList.add(new TagView(tag.getTagId(), tag.getTagName(), 0, tag.isSelected()));
                 }
-
                 chipView.setChipList(chipList);
                 chipView.setOnChipClickListener(SearchFragment.this);
-                chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
-
-                Log.d(TAG, tags.get(0).getTagName());
+                chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.colorAccent));
             }
         }
     }
@@ -323,12 +314,14 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
     private class TagView implements Chip {
         private String mName;
         private int mType = 0;
+        private int tagId;
         private boolean mSelected = false;
 
-        public TagView(String name, int type, boolean selected) {
-            this(name);
-            mType = type;
-            mSelected = selected;
+        public TagView(int tagId, String mName, int mType, boolean mSelected) {
+            this.mName = mName;
+            this.mType = mType;
+            this.tagId = tagId;
+            this.mSelected = mSelected;
         }
 
         public TagView(String name) {
@@ -350,6 +343,22 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
 
         public int getType() {
             return mType;
+        }
+
+        public int getTagId() {
+            return tagId;
+        }
+
+        public void setTagId(int tagId) {
+            this.tagId = tagId;
+        }
+
+        public String getmName() {
+            return mName;
+        }
+
+        public void setmName(String mName) {
+            this.mName = mName;
         }
     }
 
