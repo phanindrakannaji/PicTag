@@ -6,14 +6,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.plumillonforge.android.chipview.Chip;
 import com.plumillonforge.android.chipview.ChipView;
+import com.plumillonforge.android.chipview.ChipViewAdapter;
 import com.plumillonforge.android.chipview.OnChipClickListener;
 
 import org.json.JSONArray;
@@ -80,21 +83,14 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
 
-        chipList.add(new TagView("Cat", 0, false));
-        chipList.add(new TagView("Dogs", 0, true));
-        chipList.add(new TagView("Wedding"));
-        chipList.add(new TagView("Wedding"));
-        chipList.add(new TagView("Wedding"));
-        chipList.add(new TagView("Wedding"));
-        chipList.add(new TagView("Wedding"));
-
         chipView = (ChipView) view.findViewById(R.id.chipview);
-        chipView.setChipList(chipList);
-        chipView.setOnChipClickListener(this);
+        ChipViewAdapter adapter = new MainChipViewAdapter(getActivity().getApplicationContext());
+        chipView.setAdapter(adapter);
+
 
         String[] input= new String[2];
         input[0] = String.valueOf(userProfile.getId());
-        input[1] = "";
+        input[1] = ""; //search term  has to be here, if not send empty
         GetTagsTask getTagsTask = new GetTagsTask();
         getTagsTask.execute(input);
 
@@ -119,8 +115,16 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
     public void onChipClick(Chip chip) {
         TagView selectedTag = (TagView) chip;
         String tagName = selectedTag.getText();
-        boolean selectionValue = selectedTag.getSelection() ? false : true;
-        selectedTag.setSelection(selectionValue);
+
+        //select if unselected and vice-versa
+        selectedTag.setSelection(!selectedTag.getSelection());
+
+        if(selectedTag.getSelection()){
+            chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
+        }
+        else{
+            chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.blue));
+        }
 
 
     }
@@ -222,6 +226,21 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
             if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
                 //TODO 1
                 // display the list of tags in some list view
+                // dummy data start
+                chipList.add(new TagView("Cat", 0, false));
+                chipList.add(new TagView("Dogs", 0, true));
+                chipList.add(new TagView("Wedding"));
+                chipList.add(new TagView("Wedding"));
+                chipList.add(new TagView("Wedding"));
+                chipList.add(new TagView("Wedding"));
+                chipList.add(new TagView("Wedding"));
+                // dummy data end
+
+
+                chipView.setChipList(chipList);
+                chipView.setOnChipClickListener(SearchFragment.this);
+                chipView.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
+
                 Log.d(TAG, tags.get(0).getTagName());
             }
         }
@@ -333,6 +352,70 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
 
         public int getType() {
             return mType;
+        }
+    }
+
+    public class MainChipViewAdapter extends ChipViewAdapter {
+        public MainChipViewAdapter(Context context) {
+            super(context);
+        }
+
+        @Override
+        public int getLayoutRes(int position) {
+            TagView tag = (TagView) getChip(position);
+
+            switch (tag.getType()) {
+                default:
+                case 2:
+                case 4:
+                    return 0;
+
+                case 1:
+                case 5:
+                    return R.layout.chip_close;
+
+                case 3:
+                    return R.layout.chip_close;
+            }
+        }
+
+        @Override
+        public int getBackgroundColor(int position) {
+            TagView tag = (TagView) getChip(position);
+
+            switch (tag.getType()) {
+                default:
+                    return 0;
+
+                case 1:
+                case 4:
+                    return getColor(R.color.blue);
+
+                case 2:
+                case 5:
+                    return getColor(R.color.purple);
+
+                case 3:
+                    return getColor(R.color.red);
+            }
+        }
+
+        @Override
+        public int getBackgroundColorSelected(int position) {
+            return 0;
+        }
+
+        @Override
+        public int getBackgroundRes(int position) {
+            return 0;
+        }
+
+        @Override
+        public void onLayout(View view, int position) {
+            TagView tag = (TagView) getChip(position);
+
+            if (tag.getType() == 2)
+                ((TextView) view.findViewById(android.R.id.text1)).setTextColor(getColor(R.color.blue));
         }
     }
 }
