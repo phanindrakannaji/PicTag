@@ -52,6 +52,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
     private List<Tag> tags;
     private List<Chip> chipList = new ArrayList<>();
     private ChipView chipView;
+    private  ChipViewAdapter adapter;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -84,7 +85,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
 
         chipView = (ChipView) view.findViewById(R.id.chipview);
-        ChipViewAdapter adapter = new MainChipViewAdapter(getActivity().getApplicationContext());
+        adapter = new MainChipViewAdapter(getActivity().getApplicationContext());
         chipView.setAdapter(adapter);
 
 
@@ -116,16 +117,20 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         TagView selectedTag = (TagView) chip;
         String tagName = selectedTag.getText();
 
+        //chip.setSelected(true);
+
         //select if unselected and vice-versa
         selectedTag.setSelection(!selectedTag.getSelection());
 
         if(selectedTag.getSelection()){
-            chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
+            chipView.setChipBackgroundColorSelected(getActivity().getResources().getColor(R.color.green, getActivity().getTheme()));
         }
         else{
-            chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.blue));
+            chipView.setChipBackgroundColorSelected(getActivity().getResources().getColor(R.color.blue, getActivity().getTheme()));
         }
 
+        // to-do
+        // update the DB for whichever chip was selected/deselected
 
     }
 
@@ -226,20 +231,14 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
             if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
                 //TODO 1
                 // display the list of tags in some list view
-                // dummy data start
-                chipList.add(new TagView("Cat", 0, false));
-                chipList.add(new TagView("Dogs", 0, true));
-                chipList.add(new TagView("Wedding"));
-                chipList.add(new TagView("Wedding"));
-                chipList.add(new TagView("Wedding"));
-                chipList.add(new TagView("Wedding"));
-                chipList.add(new TagView("Wedding"));
-                // dummy data end
 
+                for (Tag tag : tags) {
+                    chipList.add(new TagView(tag.getTagName(), 0, tag.isSelected()));
+                }
 
                 chipView.setChipList(chipList);
                 chipView.setOnChipClickListener(SearchFragment.this);
-                chipView.setBackgroundColor(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
+                chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.green));
 
                 Log.d(TAG, tags.get(0).getTagName());
             }
