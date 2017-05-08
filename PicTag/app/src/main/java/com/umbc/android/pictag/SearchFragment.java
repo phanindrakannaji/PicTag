@@ -254,7 +254,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
             URL url;
             String response = "";
             String domain = getString(R.string.domain);
-            String requestUrl = domain + "/pictag/updateTagForUser.php";
+            String requestUrl = domain + "/pictag/toggleTagForUser.php";
             try{
                 url = new URL(requestUrl);
                 HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
@@ -270,8 +270,6 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
                 String requestJsonString = new JSONObject()
                         .put("user_id", strings[0])
                         .put("tag_id", strings[1])
-                        .put("notify", strings[2])
-                        .put("minUpVotes", strings[3])
                         .toString();
 
                 Log.d("REQUEST BODY : ", requestJsonString);
@@ -305,6 +303,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
             if (error.equalsIgnoreCase("") && response != null) {
                 super.onPostExecute(response);
                 Log.d("RESPONSE BODY: ", response);
+                handler.post(new DisplayToast(response));
             }
         }
     }
