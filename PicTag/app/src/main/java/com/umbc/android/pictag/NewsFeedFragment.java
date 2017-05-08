@@ -3,6 +3,9 @@ package com.umbc.android.pictag;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * <p>A fragment that shows a list of items as a modal bottom sheet.</p>
@@ -248,7 +250,7 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
         }
         @Override
         public void run() {
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -259,6 +261,25 @@ public class NewsFeedFragment extends BottomSheetDialogFragment {
 
             }
         });
+    }
+
+    public static Bitmap mark(Bitmap src, String watermark, Point location, int color, int alpha, int size, boolean underline) {
+        int w = src.getWidth();
+        int h = src.getHeight();
+        Bitmap result = Bitmap.createBitmap(w, h, src.getConfig());
+
+        Canvas canvas = new Canvas(result);
+        canvas.drawBitmap(src, 0, 0, null);
+
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setAlpha(alpha);
+        paint.setTextSize(size);
+        paint.setAntiAlias(true);
+        paint.setUnderlineText(underline);
+        canvas.drawText(watermark, location.x, location.y, paint);
+
+        return result;
     }
 
 }
