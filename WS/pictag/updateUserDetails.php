@@ -31,7 +31,7 @@ $errorOccurred = false;
 # Check if user exists
 $res = $mysqli->query("SELECT email FROM ".$table." WHERE user_id = $user_id");
 if ($res || $res->num_rows != 0 ){
-	$query = "UPDATE $table SET firstName = '$firstName', lastName = '$lastName', fb_profile_id = '$fb_profile_id', dob = '$dob', gender = '$gender', profilePicUrl = '$profilePicUrl', last_updated_date = now()";
+	$query = "UPDATE $table SET firstName = '$firstName', lastName = '$lastName', fb_profile_id = '$fb_profile_id', dob = '$dob', gender = '$gender', profilePicUrl = '$profilePicUrl', last_updated_date = now() WHERE user_id = $user_id";
 	$result = $mysqli->query($query);
 	if(!$result)
 	{
@@ -49,7 +49,7 @@ if ($errorOccurred){
 	$jsonMainArr[] = $jsonArr;
 } else{
 	$res = $mysqli->query("SELECT user_id, email, firstName, lastName, fb_profile_id, dob, gender, created_date, last_updated_date, last_login_time, reputation, profilePicUrl, lastAlertedTime, token
-	  FROM " .$table. " WHERE LOWER(email) = LOWER('$email') ORDER BY email ASC");
+	  FROM " .$table. " WHERE user_id = $user_id ORDER BY email ASC");
 	while ($row = $res->fetch_assoc()) {
 		$jsonArr["status"] = "S";
 		$jsonArr["user_id"] = $row['user_id'];

@@ -41,7 +41,7 @@ if ($createUsers){
 		last_updated_date DATETIME,
 		last_login_time DATETIME,
 		reputation INT,
-		profilePicUrl VARCHAR(100),
+		profilePicUrl VARCHAR(1024),
 		lastAlertedTime DATETIME,
 		token varchar(1024)
 		)")) {

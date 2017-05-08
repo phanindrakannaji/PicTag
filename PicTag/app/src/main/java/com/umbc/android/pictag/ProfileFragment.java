@@ -1,15 +1,25 @@
 package com.umbc.android.pictag;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.method.KeyListener;
@@ -17,7 +27,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.Button;
@@ -28,6 +37,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.umbc.android.pictag.adapter.UserProfileAdapter;
 import com.umbc.android.pictag.utils.CircleTransformation;
@@ -39,17 +53,17 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
+import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -65,7 +79,8 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private static final int PICK_A_PHOTO_PROFILE = 102;
+    private static final int PICK_FROM_GALLERY_PROFILE = 103;
 
 
     // TODO: Rename and change types of parameters
@@ -107,6 +122,10 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
     private View parentView;
 
     KeyListener klusername;
+    private String profilePicUrl;
+    private String imageFileName;
+    private String mCurrentPhotoPath;
+    private StorageReference mStorageRef;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -143,6 +162,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         updateUserButton = (Button) parentView.findViewById(R.id.postTopBack);//TODO change this
 
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         //ButterKnife.bind(getActivity());
 
@@ -159,7 +179,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         fbsaveuser.setOnClickListener(this);
 
         this.avatarSize = getResources().getDimensionPixelSize(R.dimen.user_profile_avatar_size);
-        this.profilePhoto = getString(R.string.user_profile_photo);
+        //this.profilePhoto = getString(R.string.user_profile_photo);
 
         tvUsername = (TextView) parentView.findViewById(R.id.tv_username);
         tvPhonenumber = (TextView) parentView.findViewById(R.id.tv_reputation);
@@ -171,7 +191,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
 
         setupUserProfile();
 
-        Picasso.with(getApplicationContext())
+        Picasso.with(getActivity().getApplicationContext())
                 .load(profilePhoto)
                 .placeholder(R.drawable.img_circle_placeholder)
                 .resize(avatarSize, avatarSize)
@@ -193,7 +213,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         tvEmail.setText(userProfile.getEmail());
         tvPhonenumber.setText(String.valueOf(userProfile.getReputation()));
         profilePhoto = userProfile.getProfilePicUrl();
-        profilePhoto = "http://scriptmode.com/googleandroidstudio/img/anyone.png";
+        if (profilePhoto == null || profilePhoto.equals("")) {
+            profilePhoto = "http://scriptmode.com/googleandroidstudio/img/anyone.png";
+        }
     }
 
 
@@ -256,22 +278,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
     @Override
     public void onClick(View view) {
         switch(view.getId()){
-            case R.id.postTopDone: //TODO change this too
-                int selectedId = radioGroup.getCheckedRadioButtonId();
-                gender = (RadioButton) parentView.findViewById(selectedId);
-
-                String[] input = new String[7];
-                input[0] = userProfile.getId();
-                input[1] = userProfile.getEmail();
-                input[2] = firstName.getText().toString();
-                input[3] = lastName.getText().toString();
-                input[4] = "";
-                input[5] = dateOfBirth.getText().toString();
-                input[6] = gender.getText().toString();
-                input[7] = "";
-                UpdateUserTask updateUserTask = new UpdateUserTask();
-                //updateUserTask.execute(input);
-                break;
             case R.id.btnEditUserInfo:
                 fbEditUser.hide();
                 fbsaveuser.show();
@@ -284,9 +290,225 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
                 tvUsername.setKeyListener(null);
                 fbsaveuser.hide();
                 fbEditUser.show();
+                String[] names = tvUsername.getText().toString().split(" ");
+                String[] input = new String[8];
+                input[0] = userProfile.getId();
+                input[1] = userProfile.getEmail();
+                input[2] = names[0];
+                input[3] = names[1];
+                input[4] = userProfile.getFbProfileId();
+                input[5] = userProfile.getDateOfBirth();
+                input[6] = userProfile.getGender();
+                if (profilePicUrl != null && !profilePicUrl.equals("")) {
+                    input[7] = profilePicUrl;
+                } else{
+                    input[7] = userProfile.getProfilePicUrl();
+                }
+                UpdateUserTask updateUserTask = new UpdateUserTask();
+                updateUserTask.execute(input);
                 break;
             case R.id.ivUserProfilePhoto:
+                final CharSequence[] options = { "Click epic", "Choose from Gallery","Cancel" };
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Profile Pic");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (options[item].equals("Click epic")) {
+                            takeAndSavePic();
+                        } else if (options[item].equals("Choose from Gallery")) {
+                            Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            getActivity().startActivityForResult(intent, PICK_FROM_GALLERY_PROFILE);
+                        } else if (options[item].equals("Cancel")) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                builder.show();
                 break;
+        }
+    }
+
+    private void takeAndSavePic() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getActivity(),
+                        "com.umbc.android.pictag",
+                        photoFile);
+                getActivity().getApplicationContext().grantUriPermission("com.umbc.android.pictag", photoURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                Log.d("Photo URI: ", photoURI.toString());
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                getActivity().startActivityForResult(takePictureIntent, PICK_A_PHOTO_PROFILE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        imageFileName = "PNG_" + timeStamp + "_";
+
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        boolean success = storageDir.mkdirs();
+        Log.d("CHECKIFEXISTS", String.valueOf(success));
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".png",         /* suffix */
+                storageDir      /* directory */
+        );
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        Log.d("PATH OF IMAGE" , mCurrentPhotoPath);
+        return image;
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        getActivity().sendBroadcast(mediaScanIntent);
+    }
+
+    public void postClickProfilePic(){
+        galleryAddPic();
+        Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
+        Log.d("Sending file path: ", file.getPath());
+        StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        // Get the dimensions of the View
+                        /*int targetW = 200;
+                        int targetH = 200;
+
+                        // Get the dimensions of the bitmap
+                        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                        bmOptions.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+                        int photoW = bmOptions.outWidth;
+                        int photoH = bmOptions.outHeight;
+
+                        // Determine how much to scale down the image
+                        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+                        // Decode the image file into a Bitmap sized to fill the View
+                        bmOptions.inJustDecodeBounds = false;
+                        bmOptions.inSampleSize = scaleFactor;
+                        Bitmap imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);*/
+                        //ivUserProfilePhoto.setImageBitmap(imageBitmap);
+
+                        if (downloadUrl != null) {
+                            profilePicUrl = downloadUrl.toString();
+                            profilePhoto = downloadUrl.toString();
+                            userProfile.setProfilePicUrl(profilePicUrl);
+                            Picasso.with(getActivity().getApplicationContext())
+                                    .load(profilePhoto)
+                                    .placeholder(R.drawable.img_circle_placeholder)
+                                    .resize(avatarSize, avatarSize)
+                                    .centerCrop()
+                                    .transform(new CircleTransformation())
+                                    .into(ivUserProfilePhoto);
+                            ((HomeActivity) getActivity()).setUserProfile(userProfile);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+                        // ...
+                        Log.d("FirebaseException: ", exception.getMessage());
+                        exception.printStackTrace();
+                    }
+                });
+    }
+
+    public void postChooseProfileGallery(Intent data){
+        Uri selectedImage = data.getData();
+        String[] filePath = {MediaStore.Images.Media.DATA};
+        Cursor c = getActivity().getContentResolver().query(selectedImage, filePath, null, null, null);
+        if (c != null) {
+            c.moveToFirst();
+            int columnIndex = c.getColumnIndex(filePath[0]);
+            mCurrentPhotoPath = c.getString(columnIndex);
+            c.close();
+            //Bitmap thumbnail = (BitmapFactory.decodeFile(mCurrentPhotoPath));
+        }
+        Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        imageFileName = "PNG_" + timeStamp + ".png";
+        Log.d("Sending file path: ", file.getPath());
+        StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
+        riversRef.putFile(file)
+                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // Get a URL to the uploaded content
+                        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                        // Get the dimensions of the View
+                        int targetW = 200;
+                        int targetH = 200;
+
+                        // Get the dimensions of the bitmap
+                        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+                        bmOptions.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+                        int photoW = bmOptions.outWidth;
+                        int photoH = bmOptions.outHeight;
+
+                        // Determine how much to scale down the image
+                        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+                        // Decode the image file into a Bitmap sized to fill the View
+                        bmOptions.inJustDecodeBounds = false;
+                        bmOptions.inSampleSize = scaleFactor;
+                        Bitmap imageBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+
+                        if (downloadUrl != null) {
+                            profilePicUrl = downloadUrl.toString();
+                            userProfile.setProfilePicUrl(profilePicUrl);
+                            profilePhoto = downloadUrl.toString();
+                            Picasso.with(getActivity().getApplicationContext())
+                                    .load(profilePhoto)
+                                    .placeholder(R.drawable.img_circle_placeholder)
+                                    .resize(avatarSize, avatarSize)
+                                    .centerCrop()
+                                    .transform(new CircleTransformation())
+                                    .into(ivUserProfilePhoto);
+                            ((HomeActivity) getActivity()).setUserProfile(userProfile);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.d("FirebaseException: ", exception.getMessage());
+                        exception.printStackTrace();
+                    }
+                });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICK_A_PHOTO_PROFILE) {
+            if (resultCode == RESULT_OK) {
+                postClickProfilePic();
+            }
+        } else if (requestCode == PICK_FROM_GALLERY_PROFILE){
+            if (resultCode == RESULT_OK) {
+                postChooseProfileGallery(data);
+            }
         }
     }
 
@@ -296,7 +518,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
             rvUserProfile.setVisibility(View.VISIBLE);
             tlUserProfileTabs.setVisibility(View.VISIBLE);
             vUserProfileRoot.setVisibility(View.VISIBLE);
-            userPhotosAdapter = new UserProfileAdapter(getApplicationContext());
+            userPhotosAdapter = new UserProfileAdapter(getActivity().getApplicationContext());
             rvUserProfile.setAdapter(userPhotosAdapter);
             animateUserProfileOptions();
             animateUserProfileHeader();
@@ -348,7 +570,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         }
         @Override
         public void run() {
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -440,7 +662,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         protected void onPostExecute(UserProfile user) {
             if (error.equalsIgnoreCase("") && user!=null) {
                 super.onPostExecute(user);
-                SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences userDetails = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
                 SharedPreferences.Editor editor = userDetails.edit();
                 editor.putString("user_id", String.valueOf(user.getId()));
                 editor.putString("email", String.valueOf(user.getEmail()));

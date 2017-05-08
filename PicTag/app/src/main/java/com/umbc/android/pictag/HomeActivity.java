@@ -62,7 +62,10 @@ public class HomeActivity extends AppCompatActivity{
     private static final int PICK_FROM_GALLERY = 101;
     private static final String TAG = "HomeActivity";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 110;
+    private static final int PICK_A_PHOTO_PROFILE = 102;
+    private static final int PICK_FROM_GALLERY_PROFILE = 103;
     CameraFragment cameraFragment;
+    ProfileFragment profileFragment;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private UserProfile userProfile;
@@ -118,6 +121,7 @@ public class HomeActivity extends AppCompatActivity{
                     break;
                 case R.id.navigation_profile:
                     selectedFragment = ProfileFragment.newInstance();
+                    profileFragment = (ProfileFragment) selectedFragment;
                     break;
             }
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -343,6 +347,14 @@ public class HomeActivity extends AppCompatActivity{
                         });
             } else{
 
+            }
+        } else if (requestCode == PICK_A_PHOTO_PROFILE) {
+            if (resultCode == RESULT_OK) {
+                profileFragment.postClickProfilePic();
+            }
+        } else if (requestCode == PICK_FROM_GALLERY_PROFILE){
+            if (resultCode == RESULT_OK) {
+                profileFragment.postChooseProfileGallery(data);
             }
         }
     }
