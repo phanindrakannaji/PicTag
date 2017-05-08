@@ -16,6 +16,7 @@ class Tag {
     private int count;
     private int currentIndex;
     private List<Post> posts;
+    boolean isSelected;
 
     Tag(int userId, int tagId, String tagName, String notify, int minVotes, int count, int currentIndex, List<Post> posts) {
         this.userId = userId;
@@ -26,6 +27,12 @@ class Tag {
         this.count = count;
         this.currentIndex = currentIndex;
         this.posts = posts;
+    }
+
+    Tag(int tagId, String tagName, boolean isSelected){
+        this.tagId = tagId;
+        this.tagName = tagName;
+        this.isSelected = isSelected;
     }
 
     Tag(int userId, int tagId, String tagName, String notify, int minVotes) {
@@ -98,5 +105,13 @@ class Tag {
 
     public void setMinVotes(int minVotes) {
         this.minVotes = minVotes;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 }

@@ -10,12 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.plumillonforge.android.chipview.Chip;
 import com.plumillonforge.android.chipview.ChipView;
-import com.plumillonforge.android.chipview.ChipViewAdapter;
 import com.plumillonforge.android.chipview.OnChipClickListener;
 
 import org.json.JSONArray;
@@ -94,8 +92,9 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         chipView.setChipList(chipList);
         chipView.setOnChipClickListener(this);
 
-        String[] input= new String[1];
-        input[0] = "";//String.valueOf(userProfile.getId());
+        String[] input= new String[2];
+        input[0] = String.valueOf(userProfile.getId());
+        input[1] = "";
         GetTagsTask getTagsTask = new GetTagsTask();
         getTagsTask.execute(input);
 
@@ -165,7 +164,8 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
 
                 String requestJsonString = new JSONObject()
-                        .put("search_term", strings[0])
+                        .put("user_id", strings[0])
+                        .put("search_term", strings[1])
                         .toString();
 
                 Log.d("REQUEST BODY : ", requestJsonString);
@@ -195,12 +195,9 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject childJsonObj = jsonArray.getJSONObject(i);
                             if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
-                                Tag tag = new Tag(
-                                        childJsonObj.getInt("user_id"),
-                                        childJsonObj.getInt("tag_id"),
+                                Tag tag = new Tag(childJsonObj.getInt("tag_id"),
                                         childJsonObj.getString("tag_name"),
-                                        childJsonObj.getString("notify"),
-                                        childJsonObj.getInt("minUpVotes"));
+                                        childJsonObj.getBoolean("isSelected"));
                                 tags.add(tag);
                             } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                 error = childJsonObj.getString("errorMessage");
@@ -275,67 +272,6 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
                     br.close();
                 } else{
                     error = "Unable to update tag!!";
-                    handler.post(new DisplayToast(error));
-                }
-                myConnection.disconnect();
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-            return response;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            if (error.equalsIgnoreCase("") && response != null) {
-                super.onPostExecute(response);
-                Log.d("RESPONSE BODY: ", response);
-            }
-        }
-    }
-
-    private class DeleteTagTask extends AsyncTask<String, Integer, String> {
-
-        String error = "";
-        @Override
-        protected String doInBackground(String... strings) {
-            URL url;
-            String response = "";
-            String domain = getString(R.string.domain);
-            String requestUrl = domain + "/pictag/removeTagForUser.php";
-            try{
-                url = new URL(requestUrl);
-                HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
-                myConnection.setReadTimeout(15000);
-                myConnection.setConnectTimeout(15000);
-                myConnection.setRequestMethod("POST");
-                myConnection.setDoInput(true);
-                myConnection.setDoOutput(true);
-
-                OutputStream os = myConnection.getOutputStream();
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(os));
-
-                String requestJsonString = new JSONObject()
-                        .put("user_id", strings[0])
-                        .put("tag_id", strings[1])
-                        .toString();
-
-                Log.d("REQUEST BODY : ", requestJsonString);
-                bw.write(requestJsonString);
-                bw.flush();
-                bw.close();
-
-                int responseCode = myConnection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK){
-                    String line;
-                    BufferedReader br = new BufferedReader(new InputStreamReader(myConnection.getInputStream()));
-                    line = br.readLine();
-                    while(line != null){
-                        response += line;
-                        line = br.readLine();
-                    }
-                    br.close();
-                } else{
-                    error = "Unable to delete tag!!";
                     handler.post(new DisplayToast(error));
                 }
                 myConnection.disconnect();
