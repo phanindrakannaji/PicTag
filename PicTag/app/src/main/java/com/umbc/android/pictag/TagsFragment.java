@@ -12,6 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.plumillonforge.android.chipview.Chip;
+import com.plumillonforge.android.chipview.ChipView;
+import com.plumillonforge.android.chipview.ChipViewAdapter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +61,11 @@ public class TagsFragment extends Fragment {
     private Handler handler = new Handler();
     private List<Tag> tags;
 
+    private List<Chip> chipList = new ArrayList<>();
+    private ChipView chipView;
+
+
+
     public TagsFragment() {
         // Required empty public constructor
     }
@@ -92,11 +101,19 @@ public class TagsFragment extends Fragment {
         //load the screen elements here
         // from view.findViewById
 
+        chipList.add(new TagsFragment.TagView("Cat"));
+        chipList.add(new TagsFragment.TagView("Dogs"));
+        chipList.add(new TagsFragment.TagView("Wedding"));
+
+        ChipView chipDefault = (ChipView) view.findViewById(R.id.chipview);
+        chipDefault.setChipList(chipList);
+
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
         String[] input = new String[1];
         input[0] = userProfile.getId();
         GetTagsTask getTagsTask = new GetTagsTask();
         getTagsTask.execute(input);
+
         return view;
     }
 
@@ -355,6 +372,29 @@ public class TagsFragment extends Fragment {
         @Override
         public void run() {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class TagView implements Chip {
+        private String mName;
+        private int mType = 0;
+
+        public TagView(String name, int type) {
+            this(name);
+            mType = type;
+        }
+
+        public TagView(String name) {
+            mName = name;
+        }
+
+        @Override
+        public String getText() {
+            return mName;
+        }
+
+        public int getType() {
+            return mType;
         }
     }
 }

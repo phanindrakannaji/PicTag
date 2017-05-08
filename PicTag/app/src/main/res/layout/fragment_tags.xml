@@ -2,13 +2,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:chip="http://schemas.android.com/apk/res-auto"
     tools:context="com.umbc.android.pictag.TagsFragment"
     android:tag="tagsFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="This is tags fragment" />
+        android:layout_height="match_parent" />
+
+    <com.plumillonforge.android.chipview.ChipView
+        android:id="@+id/chipview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        chip:chip_corner_radius="6dp"
+        chip:chip_line_spacing="20dp"
+        chip:chip_padding="8dp"
+        chip:chip_side_padding="10dp"
+        chip:chip_spacing="16dp" />
 
 </FrameLayout>

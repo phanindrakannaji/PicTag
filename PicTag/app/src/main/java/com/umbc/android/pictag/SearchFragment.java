@@ -1,7 +1,6 @@
 package com.umbc.android.pictag;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 import com.plumillonforge.android.chipview.Chip;
 import com.plumillonforge.android.chipview.ChipView;
 import com.plumillonforge.android.chipview.ChipViewAdapter;
+import com.plumillonforge.android.chipview.OnChipClickListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +44,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements OnChipClickListener {
     UserProfile userProfile;
 
     // load screen elements from onCreateView
@@ -52,8 +52,8 @@ public class SearchFragment extends Fragment {
     private TagsFragment.OnFragmentInteractionListener mListener;
     private Handler handler = new Handler();
     private List<Tag> tags;
-    List<Chip> chipList = new ArrayList<>();
-    ChipView chipView;
+    private List<Chip> chipList = new ArrayList<>();
+    private ChipView chipView;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -85,20 +85,17 @@ public class SearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
 
-        chipList.add(new TagView("Cat"));
-        chipList.add(new TagView("Dogs"));
+        chipList.add(new TagView("Cat", 0, false));
+        chipList.add(new TagView("Dogs", 0, true));
         chipList.add(new TagView("Wedding"));
         chipList.add(new TagView("Wedding"));
         chipList.add(new TagView("Wedding"));
         chipList.add(new TagView("Wedding"));
         chipList.add(new TagView("Wedding"));
 
-        ChipView chipDefault = (ChipView) view.findViewById(R.id.chipview);
-        chipDefault.setChipList(chipList);
-
-        ChipViewAdapter adapter = new MainChipViewAdapter(this.getContext());
-        //chipView.setBackgroundColor(getResources().getColor(R.color.green));
-        //chipView.setAdapter(adapter);
+        chipView = (ChipView) view.findViewById(R.id.chipview);
+        chipView.setChipList(chipList);
+        chipView.setOnChipClickListener(this);
 
         String[] input= new String[1];
         input[0] = "";//String.valueOf(userProfile.getId());
@@ -109,6 +106,8 @@ public class SearchFragment extends Fragment {
         return view;
     }
 
+
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -118,6 +117,16 @@ public class SearchFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onChipClick(Chip chip) {
+        TagView selectedTag = (TagView) chip;
+        String tagName = selectedTag.getText();
+        boolean selectionValue = selectedTag.getSelection() ? false : true;
+        selectedTag.setSelection(selectionValue);
+
+
     }
 
     /**
@@ -364,10 +373,12 @@ public class SearchFragment extends Fragment {
     private class TagView implements Chip {
         private String mName;
         private int mType = 0;
+        private boolean mSelected = false;
 
-        public TagView(String name, int type) {
+        public TagView(String name, int type, boolean selected) {
             this(name);
             mType = type;
+            mSelected = selected;
         }
 
         public TagView(String name) {
@@ -379,75 +390,16 @@ public class SearchFragment extends Fragment {
             return mName;
         }
 
+        public void setSelection(boolean value) {
+            mSelected = value;
+        }
+
+        public boolean getSelection() {
+            return mSelected;
+        }
+
         public int getType() {
             return mType;
         }
-    }
-
-    public class MainChipViewAdapter extends ChipViewAdapter {
-        public MainChipViewAdapter(Context context) {
-            super(context);
-        }
-
-        @Override
-        public int getLayoutRes(int position) {
-            TagView tag = (TagView) getChip(position);
-
-            switch (tag.getType()) {
-                default:
-                case 2:
-                case 4:
-                    return 0;
-
-                case 1:
-                case 5:
-                    //return R.layout.chip_double_close;
-                    return R.layout.chip_close;
-
-                case 3:
-                    return R.layout.chip_close;
-            }
-        }
-
-        @Override
-        public int getBackgroundColor(int position) {
-            TagView tag = (TagView) getChip(position);
-
-            switch (tag.getType()) {
-                default:
-                    return 0;
-
-                case 1:
-                case 4:
-                    return getColor(R.color.red);
-
-                case 2:
-                case 5:
-                    return getColor(R.color.purple);
-
-                case 3:
-                    return getColor(R.color.green);
-            }
-        }
-
-        @Override
-        public int getBackgroundColorSelected(int position) {
-            return 0;
-        }
-
-        @Override
-        public int getBackgroundRes(int position) {
-            return 0;
-        }
-
-        @Override
-        public void onLayout(View view, int position) {
-            TagView tag = (TagView) getChip(position);
-
-            if (tag.getType() == 2)
-                ((TextView) view.findViewById(android.R.id.text1)).setTextColor(getColor(R.color.blue));
-        }
-
-
     }
 }
