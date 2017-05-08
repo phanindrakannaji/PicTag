@@ -1,6 +1,7 @@
 package com.umbc.android.pictag;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.plumillonforge.android.chipview.Chip;
+import com.plumillonforge.android.chipview.ChipView;
+import com.plumillonforge.android.chipview.ChipViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +52,8 @@ public class SearchFragment extends Fragment {
     private TagsFragment.OnFragmentInteractionListener mListener;
     private Handler handler = new Handler();
     private List<Tag> tags;
+    List<Chip> chipList = new ArrayList<>();
+    ChipView chipView;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -73,8 +81,32 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        userProfile = ((HomeActivity) getActivity()).getUserProfile();
+
+        chipList.add(new TagView("Cat"));
+        chipList.add(new TagView("Dogs"));
+        chipList.add(new TagView("Wedding"));
+        chipList.add(new TagView("Wedding"));
+        chipList.add(new TagView("Wedding"));
+        chipList.add(new TagView("Wedding"));
+        chipList.add(new TagView("Wedding"));
+
+        ChipView chipDefault = (ChipView) view.findViewById(R.id.chipview);
+        chipDefault.setChipList(chipList);
+
+        ChipViewAdapter adapter = new MainChipViewAdapter(this.getContext());
+        //chipView.setBackgroundColor(getResources().getColor(R.color.green));
+        //chipView.setAdapter(adapter);
+
+        String[] input= new String[1];
+        input[0] = "";//String.valueOf(userProfile.getId());
+        GetTagsTask getTagsTask = new GetTagsTask();
+        getTagsTask.execute(input);
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        return view;
     }
 
     @Override
@@ -327,5 +359,95 @@ public class SearchFragment extends Fragment {
         public void run() {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private class TagView implements Chip {
+        private String mName;
+        private int mType = 0;
+
+        public TagView(String name, int type) {
+            this(name);
+            mType = type;
+        }
+
+        public TagView(String name) {
+            mName = name;
+        }
+
+        @Override
+        public String getText() {
+            return mName;
+        }
+
+        public int getType() {
+            return mType;
+        }
+    }
+
+    public class MainChipViewAdapter extends ChipViewAdapter {
+        public MainChipViewAdapter(Context context) {
+            super(context);
+        }
+
+        @Override
+        public int getLayoutRes(int position) {
+            TagView tag = (TagView) getChip(position);
+
+            switch (tag.getType()) {
+                default:
+                case 2:
+                case 4:
+                    return 0;
+
+                case 1:
+                case 5:
+                    //return R.layout.chip_double_close;
+                    return R.layout.chip_close;
+
+                case 3:
+                    return R.layout.chip_close;
+            }
+        }
+
+        @Override
+        public int getBackgroundColor(int position) {
+            TagView tag = (TagView) getChip(position);
+
+            switch (tag.getType()) {
+                default:
+                    return 0;
+
+                case 1:
+                case 4:
+                    return getColor(R.color.red);
+
+                case 2:
+                case 5:
+                    return getColor(R.color.purple);
+
+                case 3:
+                    return getColor(R.color.green);
+            }
+        }
+
+        @Override
+        public int getBackgroundColorSelected(int position) {
+            return 0;
+        }
+
+        @Override
+        public int getBackgroundRes(int position) {
+            return 0;
+        }
+
+        @Override
+        public void onLayout(View view, int position) {
+            TagView tag = (TagView) getChip(position);
+
+            if (tag.getType() == 2)
+                ((TextView) view.findViewById(android.R.id.text1)).setTextColor(getColor(R.color.blue));
+        }
+
+
     }
 }
