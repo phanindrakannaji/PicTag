@@ -15,7 +15,7 @@ try{
 		die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}
 
-	$query = "(SELECT a.tag_id as tag_id, a.tag as tag, 'true' as 'isSelected' from tags a, user_tags b WHERE a.tag_id = b.tag_id ";
+	$query = "(SELECT DISTINCT a.tag_id as tag_id, a.tag as tag, 'true' as 'isSelected' from tags a, user_tags b WHERE a.tag_id = b.tag_id ";
 
 if ($search_term != ""){
 	$query = $query . "and b.user_id=$user_id and a.tag LIKE '%al%'";
