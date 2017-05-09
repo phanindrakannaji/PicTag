@@ -243,9 +243,9 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                 }
                 chipView.setChipList(chipList);
                 chipView.setOnChipClickListener(SearchFragment.this);
-                chipView.setChipSpacing(15);
+                chipView.setChipSpacing(20);
                 chipView.setChipSidePadding(15);
-                chipView.setLineSpacing(15);
+                chipView.setLineSpacing(20);
                 chipView.setChipPadding(15);
             }
         }

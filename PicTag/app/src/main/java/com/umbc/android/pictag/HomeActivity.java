@@ -238,7 +238,7 @@ public class HomeActivity extends AppCompatActivity{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_A_PHOTO) {
             if (resultCode == RESULT_OK) {
-                galleryAddPic();
+                //galleryAddPic();
                 Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
                 Log.d("Sending file path: ", file.getPath());
                 StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
