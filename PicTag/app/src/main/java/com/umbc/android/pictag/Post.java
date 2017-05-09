@@ -8,7 +8,8 @@ import java.util.Date;
 
 public class Post {
     // user_id, image_url, is_Priced, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count
-    private int userId;
+    private int ownerId;
+    private int postId;
     private String imageUrl;
     private boolean isPriced;
     private String description;
@@ -20,9 +21,10 @@ public class Post {
     private int category;
     private int upCount;
     private int downCount;
+    private boolean upVote;
 
-    public Post(int userId, String imageUrl, boolean isPriced, String description, Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, int watermarkId, int category, int upCount, int downCount) {
-        this.userId = userId;
+    public Post(int ownerId, String imageUrl, boolean isPriced, String description, Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, int watermarkId, int category, int upCount, int downCount) {
+        this.ownerId = ownerId;
         this.imageUrl = imageUrl;
         this.isPriced = isPriced;
         this.description = description;
@@ -36,12 +38,20 @@ public class Post {
         this.downCount = downCount;
     }
 
-    public int getUserId() {
-        return userId;
+    public int getPostId() {
+        return postId;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setPostId(int postId) {
+        this.postId = postId;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getImageUrl() {
@@ -130,5 +140,13 @@ public class Post {
 
     public void setDownCount(int downCount) {
         this.downCount = downCount;
+    }
+
+    public boolean isUpVote() {
+        return upVote;
+    }
+
+    public void setUpVote(boolean upVote) {
+        this.upVote = upVote;
     }
 }
