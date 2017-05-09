@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:weightSum="1"
+    android:baselineAligned="false">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Switch
+            android:id="@+id/notify_switch"
+            android:layout_width="378dp"
+            android:layout_height="39dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:textSize="18sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:text="Notify" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_below="@+id/notify_switch"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="Minimum Upvotes" />
+
+        <com.crystal.crystalrangeseekbar.widgets.CrystalSeekbar
+            android:id="@+id/rangeSeekbar1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_below="@+id/textView2"
+            app:min_value="10"
+            app:max_value="2000"
+            app:steps="5"
+            app:bar_color="@color/colorPrimary"
+            app:bar_highlight_color="@color/colorAccent"
+            app:data_type="_integer"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/minUpVoteValue"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="50dp"
+            android:layout_below="@+id/rangeSeekbar1"/>
+
+        <Button
+            android:id="@+id/deleteTag"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_below="@+id/minUpVoteValue"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_search" />
+
+    </RelativeLayout>
+</LinearLayout>
