@@ -68,7 +68,7 @@
             android:layout_marginStart="30dp"
             android:layout_below="@+id/minUpVoteValue"
             android:layout_marginTop="20dp"
-            android:background="@drawable/ic_search" />
+            android:background="@drawable/ic_delete" />
 
     </RelativeLayout>
 </LinearLayout>

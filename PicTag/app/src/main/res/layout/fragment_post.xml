@@ -4,26 +4,28 @@
     android:layout_height="match_parent"
     tools:context="com.umbc.android.pictag.PostFragment"
     android:tag="postFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:id="@+id/postfrag_imageview"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_margin="20dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/postfrag_desc"
         android:layout_below="@+id/postfrag_imageview"
-        android:id="@+id/postfrag_desc"/>
+        android:layout_centerHorizontal="true" />
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/postfrag_desc"
+        android:layout_marginTop="10dp" />
 
 </RelativeLayout>

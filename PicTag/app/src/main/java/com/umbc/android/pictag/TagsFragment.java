@@ -1,16 +1,12 @@
 package com.umbc.android.pictag;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -78,7 +74,6 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
     private ChipView chipView;
     private  ChipViewAdapter adapter;
     private boolean notifyValue;
-    private Button delete;
     private AlertDialog dialog;
 
 
