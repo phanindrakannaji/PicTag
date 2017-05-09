@@ -6,11 +6,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +43,7 @@ import java.util.List;
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFragment extends Fragment implements OnChipClickListener {
+public class SearchFragment extends Fragment implements OnChipClickListener, View.OnClickListener {
     UserProfile userProfile;
 
     // load screen elements from onCreateView
@@ -50,9 +51,11 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
     private TagsFragment.OnFragmentInteractionListener mListener;
     private Handler handler = new Handler();
     private List<Tag> tags;
-    private List<Chip> chipList = new ArrayList<>();
+    private List<Chip> chipList;
     private ChipView chipView;
     private  ChipViewAdapter adapter;
+    EditText searchTerm;
+    Button search;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -85,6 +88,9 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
 
         chipView = (ChipView) view.findViewById(R.id.chipview);
+        searchTerm = (EditText) view.findViewById(R.id.searchTerm);
+        search = (Button) view.findViewById(R.id.search_icon);
+        search.setOnClickListener(this);
         adapter = new MainChipViewAdapter(getActivity().getApplicationContext());
         chipView.setAdapter(adapter);
 
@@ -112,23 +118,28 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
     @Override
     public void onChipClick(Chip chip) {
         TagView selectedTag = (TagView) chip;
+        int tagId = selectedTag.getTagId();
         String tagName = selectedTag.getText();
 
-        //chip.setSelected(true);
+        String[] input = new String[2];
+        input[0] = userProfile.getId();
+        input[1] = String.valueOf(tagId);
+        UpdateTagTask updateTagTask = new UpdateTagTask();
+        updateTagTask.execute(input);
+    }
 
-        //select if unselected and vice-versa
-        selectedTag.setSelection(!selectedTag.getSelection());
-
-        if(selectedTag.getSelection()){
-            chipView.setChipBackgroundColorSelected(getActivity().getResources().getColor(R.color.green, getActivity().getTheme()));
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.search_icon:
+                String searchTermStr = searchTerm.getText().toString();
+                String[] input= new String[2];
+                input[0] = String.valueOf(userProfile.getId());
+                input[1] = searchTermStr;
+                GetTagsTask getTagsTask = new GetTagsTask();
+                getTagsTask.execute(input);
+                break;
         }
-        else{
-            chipView.setChipBackgroundColorSelected(getActivity().getResources().getColor(R.color.blue, getActivity().getTheme()));
-        }
-
-        // to-do
-        // update the DB for whichever chip was selected/deselected
-
     }
 
     /**
@@ -226,12 +237,16 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         protected void onPostExecute(List<Tag> tags) {
             super.onPostExecute(tags);
             if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
+                chipList = new ArrayList<>();
                 for (Tag tag : tags) {
                     chipList.add(new TagView(tag.getTagId(), tag.getTagName(), 0, tag.isSelected()));
                 }
                 chipView.setChipList(chipList);
                 chipView.setOnChipClickListener(SearchFragment.this);
-                chipView.setChipBackgroundColorSelected(ContextCompat.getColor(getActivity().getApplicationContext(), R.color.colorAccent));
+                chipView.setChipSpacing(15);
+                chipView.setChipSidePadding(15);
+                chipView.setLineSpacing(15);
+                chipView.setChipPadding(15);
             }
         }
     }
@@ -294,6 +309,12 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
                 super.onPostExecute(response);
                 Log.d("RESPONSE BODY: ", response);
                 handler.post(new DisplayToast(response));
+                String searchTermStr = searchTerm.getText().toString();
+                String[] input= new String[2];
+                input[0] = String.valueOf(userProfile.getId());
+                input[1] = searchTermStr;
+                GetTagsTask getTagsTask = new GetTagsTask();
+                getTagsTask.execute(input);
             }
         }
     }
@@ -390,20 +411,10 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         public int getBackgroundColor(int position) {
             TagView tag = (TagView) getChip(position);
 
-            switch (tag.getType()) {
-                default:
-                    return 0;
-
-                case 1:
-                case 4:
-                    return getColor(R.color.blue);
-
-                case 2:
-                case 5:
-                    return getColor(R.color.purple);
-
-                case 3:
-                    return getColor(R.color.red);
+            if (tag.getSelection()){
+                return getColor(R.color.tagSelectedColor);
+            } else{
+                return getColor(R.color.tagBackgroundColor);
             }
         }
 
@@ -420,9 +431,10 @@ public class SearchFragment extends Fragment implements OnChipClickListener {
         @Override
         public void onLayout(View view, int position) {
             TagView tag = (TagView) getChip(position);
-
-            if (tag.getType() == 2)
-                ((TextView) view.findViewById(android.R.id.text1)).setTextColor(getColor(R.color.blue));
+            TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+            text1.setTextSize(18);
+            text1.setTextColor(getActivity().getResources().getColor(R.color.primary_text_default_material_light, getActivity().getTheme()));
+            text1.setPadding(1, 2, 1, 2);
         }
     }
 }
