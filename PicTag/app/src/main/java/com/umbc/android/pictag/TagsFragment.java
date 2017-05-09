@@ -342,10 +342,6 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
 
                 chipView.setChipList(chipList);
                 chipView.setOnChipClickListener(TagsFragment.this);
-                chipView.setChipSpacing(15);
-                chipView.setChipSidePadding(15);
-                chipView.setLineSpacing(15);
-                chipView.setChipPadding(15);
 
                 Log.d(TAG, tags.get(0).getTagName());
             }

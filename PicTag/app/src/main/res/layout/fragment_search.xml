@@ -38,7 +38,6 @@
             android:layout_height="wrap_content"
             chip:chip_background="@color/tagBackgroundColor"
             chip:chip_background_selected="@color/tagSelectedColor"
-
             chip:chip_corner_radius="6dp"
             chip:chip_line_spacing="20dp"
             chip:chip_padding="15dp"
