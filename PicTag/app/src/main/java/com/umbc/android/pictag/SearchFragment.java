@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.plumillonforge.android.chipview.Chip;
 import com.plumillonforge.android.chipview.ChipView;
@@ -43,7 +44,7 @@ import java.util.List;
  * Use the {@link SearchFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFragment extends Fragment implements OnChipClickListener, View.OnClickListener {
+public class SearchFragment extends Fragment implements OnChipClickListener, View.OnClickListener, TextWatcher {
     UserProfile userProfile;
 
     // load screen elements from onCreateView
@@ -99,6 +100,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
         input[1] = ""; //search term  has to be here, if not send empty
         GetTagsTask getTagsTask = new GetTagsTask();
         getTagsTask.execute(input);
+        searchTerm.addTextChangedListener(this);
         return view;
     }
 
@@ -140,6 +142,26 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                 getTagsTask.execute(input);
                 break;
         }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        String searchTermStr = searchTerm.getText().toString();
+        String[] input= new String[2];
+        input[0] = String.valueOf(userProfile.getId());
+        input[1] = searchTermStr;
+        GetTagsTask getTagsTask = new GetTagsTask();
+        getTagsTask.execute(input);
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
     }
 
     /**
@@ -202,7 +224,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                     br.close();
                 } else{
                     error = "Unable to get tags!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 Log.d("RESPONSE BODY: ", response);
 
@@ -218,12 +240,12 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                                 tags.add(tag);
                             } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                 error = childJsonObj.getString("errorMessage");
-                                handler.post(new DisplayToast(error));
+                                ((HomeActivity) getActivity()).displayToast(error);
                             }
                         }
                     } else {
                         error = "No Tags selected!";
-                        handler.post(new DisplayToast(error));
+                        //handler.post(new DisplayToast(error));
                     }
                 }
                 myConnection.disconnect();
@@ -290,7 +312,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                     br.close();
                 } else{
                     error = "Unable to update tag!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 myConnection.disconnect();
             } catch (IOException | JSONException e) {
@@ -304,7 +326,7 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
             if (error.equalsIgnoreCase("") && response != null) {
                 super.onPostExecute(response);
                 Log.d("RESPONSE BODY: ", response);
-                handler.post(new DisplayToast(response));
+                ((HomeActivity) getActivity()).displayToast(response);
                 String searchTermStr = searchTerm.getText().toString();
                 String[] input= new String[2];
                 input[0] = String.valueOf(userProfile.getId());
@@ -312,19 +334,6 @@ public class SearchFragment extends Fragment implements OnChipClickListener, Vie
                 GetTagsTask getTagsTask = new GetTagsTask();
                 getTagsTask.execute(input);
             }
-        }
-    }
-
-    private class DisplayToast implements Runnable{
-
-        String message;
-
-        DisplayToast(String message){
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -14,29 +14,23 @@ try{
 	    die("[ERROR] Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
 	}
 
-	$query = "SELECT user_id, image_url, is_Priced, price, description,
-		 created_date, last_updated_date, status, is_private, watermark_id, 
-		 category, up_count, down_count 
-			FROM posts
-			ORDER BY created_date DESC";
+	$query = "SELECT a.tag_id as tag_id, b.tag as tag FROM user_tags a, tags b WHERE a.user_id = $user_id AND a.tag_id = b.tag_id ORDER BY tag";
 	$res = $mysqli->query($query);
 	$jsonMainArr = array();
 	while ($row = $res->fetch_assoc()) {
-		$jsonArr["status"] = "S";
-		$jsonArr["user_id"] = $row['user_id'];
-		$jsonArr["image_url"] = $row['image_url'];
-    	$jsonArr["is_Priced"] = $row['is_Priced'];
-    	$jsonArr["price"] = $row['price'];
-    	$jsonArr["description"] = $row['description'];
-    	$jsonArr["watermark_id"] = $row['watermark_id'];
-    	$jsonArr["created_date"] = $row['created_date'];
-    	$jsonArr["last_updated_date"] = $row['last_updated_date'];
-    	$jsonArr["postStatus"] = $row['status'];
-    	$jsonArr["is_private"] = $row['is_private'];
-    	$jsonArr["category"] = $row['category'];
-    	$jsonArr["up_count"] = $row['up_count'];
-    	$jsonArr["down_count"] = $row['down_count'];
-    	$jsonMainArr[] = $jsonArr;
+		$tagId = $row['tag_id'];
+		$tagName = $row['tag'];
+		$innerJsonArray = array();
+		$innerQuery = "SELECT DISTINCT image_url from posts a, post_tags b where a.post_id = b.post_id and b.tag_id = $tagId ORDER BY created_date desc";
+		$innerres = $mysqli->query($innerQuery);
+		while ($innerrow = $innerres->fetch_assoc()) {
+			$innerJson["tag_id"] = $tagId;
+			$innerJson["image_url"] = $innerrow['image_url'];
+			$innerJsonArray[] = $innerJson;
+		}
+		$jsonMain["tag_name"] = $tagName;
+		$jsonMain["images_list"] = $innerJsonArray;
+		$jsonMainArr[] = $jsonMain;
 	}
 	
 	header('Content-type: application/json');

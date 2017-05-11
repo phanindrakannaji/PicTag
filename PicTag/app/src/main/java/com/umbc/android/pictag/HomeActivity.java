@@ -107,6 +107,7 @@ public class HomeActivity extends AppCompatActivity{
                             if (options[item].equals("Click epic")) {
                                 takeAndSavePic();
                             } else if (options[item].equals("Choose from Gallery")) {
+                                requestPermissions();
                                 Intent intent = new   Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 startActivityForResult(intent, PICK_FROM_GALLERY);
                             } else if (options[item].equals("Cancel")) {
@@ -134,10 +135,20 @@ public class HomeActivity extends AppCompatActivity{
 
     };
     private ClarifaiClient client;
+    private Toast t;
 
     public void displayNewsFeed(){
         View view = navigation.findViewById(R.id.navigation_newsfeed);
         view.performClick();
+    }
+
+    public void displaySearchTags(){
+        View view = navigation.findViewById(R.id.navigation_search);
+        view.performClick();
+    }
+
+    public void displayToast(String message){
+        handler.post(new DisplayToast(message));
     }
 
     private void loadTags() {
@@ -173,7 +184,7 @@ public class HomeActivity extends AppCompatActivity{
         }
     }
 
-    @Override
+/*    @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -187,7 +198,7 @@ public class HomeActivity extends AppCompatActivity{
                 }
                 break;
         }
-    }
+    }*/
 
     private void requestPermissions(){
         if (ContextCompat.checkSelfPermission(this, // request permission when it is not granted.
@@ -238,7 +249,7 @@ public class HomeActivity extends AppCompatActivity{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_A_PHOTO) {
             if (resultCode == RESULT_OK) {
-                //galleryAddPic();
+                galleryAddPic();
                 Uri file = Uri.fromFile(new File(mCurrentPhotoPath));
                 Log.d("Sending file path: ", file.getPath());
                 StorageReference riversRef = mStorageRef.child("images/"+imageFileName);
@@ -376,12 +387,12 @@ public class HomeActivity extends AppCompatActivity{
 
         @Override protected void onPostExecute(ClarifaiResponse<List<ClarifaiOutput<Concept>>> response) {
             if (!response.isSuccessful()) {
-                handler.post(new DisplayToast("Error in Clarifai"));
+                displayToast("Error in Clarifai");
                 return;
             }
             final List<ClarifaiOutput<Concept>> predictions = response.get();
             if (predictions.isEmpty()) {
-                handler.post(new DisplayToast("Error in Clarifai: No results"));
+                displayToast("Error in Clarifai: No results");
             } else {
                 Log.d("PREDICTIONS", predictions.get(0).data().get(0).name());
                 if (predictions.get(0).data().size() > 0){
@@ -499,7 +510,11 @@ public class HomeActivity extends AppCompatActivity{
         }
         @Override
         public void run() {
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            if (t != null) {
+                t.cancel();
+            }
+            t = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+            t.show();
         }
     }
 }

@@ -38,7 +38,8 @@
 
 
     <string name="user_profile_photo">http://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xpa1/t51.2885-19/929118_455075441302693_1605108410_a.jpg</string>
-
+    <string name="left"><![CDATA[<]]></string>
+    <string name="right"><![CDATA[>]]></string>
 
     <string-array name="user_photos">
         <item>http://scontent-a-fra.cdninstagram.com/hphotos-xpf1/t51.2885-15/s306x306/e15/10665483_429615813855717_1490926670_n.jpg</item>

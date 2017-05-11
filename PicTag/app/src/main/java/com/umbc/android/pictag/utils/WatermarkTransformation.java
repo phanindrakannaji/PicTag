@@ -38,7 +38,7 @@ public class WatermarkTransformation implements Transformation {
 
         Paint paint2 = new Paint();
         paint2.setColor(palette.getVibrantColor(0xdd03a9f4));
-        paint2.setTextSize(24);
+        paint2.setTextSize(32);
         paint2.setTextAlign(Paint.Align.RIGHT);
         paint2.setAntiAlias(true);
         Rect textBounds = new Rect();

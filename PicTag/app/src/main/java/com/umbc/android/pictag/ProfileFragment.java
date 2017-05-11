@@ -561,19 +561,6 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
         void onFragmentInteraction(Uri uri);
     }
 
-    private class DisplayToast implements Runnable{
-
-        String message;
-
-        DisplayToast(String message){
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private class UpdateUserTask extends AsyncTask<String, Integer, UserProfile> {
 
         String error = "";
@@ -643,12 +630,12 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
                                         childJsonObj.getString("token"));
                             } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                 error = childJsonObj.getString("errorMessage");
-                                handler.post(new DisplayToast(error));
+                                ((HomeActivity) getActivity()).displayToast(error);
                             }
                         }
                     } else {
                         error = "Update user failed!!";
-                        handler.post(new DisplayToast(error));
+                        ((HomeActivity) getActivity()).displayToast(error);
                     }
                 }
                 myConnection.disconnect();
@@ -678,7 +665,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener , 
                 ((HomeActivity) getActivity()).setUserProfile(user);
             } else{
                 error = "Update user failed!!!";
-                handler.post(new DisplayToast(error));
+                ((HomeActivity) getActivity()).displayToast(error);
             }
         }
     }

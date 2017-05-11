@@ -118,6 +118,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         });
                 break;
             case R.id.signUpButton:
+                finish();
                 Intent myIntent = new Intent(LoginActivity.this, SignUpActivity.class);
                 startActivity(myIntent);
                 break;
@@ -224,6 +225,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 editor.putString("profilePicUrl", String.valueOf(user.getProfilePicUrl()));
                 editor.putString("token", String.valueOf(user.getTokenId()));
                 editor.apply();
+                finish();
                 Intent myIntent = new Intent(LoginActivity.this, HomeActivity.class);
                 startActivity(myIntent);
             }

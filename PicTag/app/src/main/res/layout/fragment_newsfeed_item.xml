@@ -1,24 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/text"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:paddingBottom="@dimen/list_item_spacing_half"
-    android:paddingLeft="@dimen/list_item_spacing"
-    android:paddingRight="@dimen/list_item_spacing"
-    android:paddingTop="@dimen/list_item_spacing_half"
-    android:textAppearance="@style/TextAppearance.AppCompat.Large"
-    tools:text="Hello" /> -->
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mainNewsTagHead"/>
+    <ImageSwitcher
+        android:id="@+id/newsfeedItem_image"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:adjustViewBounds="true"
+        android:paddingBottom="@dimen/list_item_spacing_half"
+        android:paddingLeft="@dimen/list_item_spacing"
+        android:paddingRight="@dimen/list_item_spacing"
+        android:paddingTop="@dimen/list_item_spacing_half"
+        android:contentDescription="image" />
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/newsfeedItem_image"
-    android:layout_width="200dp"
-    android:layout_height="100dp"
-    android:adjustViewBounds="true"
-    android:paddingBottom="@dimen/list_item_spacing_half"
-    android:paddingLeft="@dimen/list_item_spacing"
-    android:paddingRight="@dimen/list_item_spacing"
-    android:paddingTop="@dimen/list_item_spacing_half"
-    android:contentDescription="image" />
+</RelativeLayout>

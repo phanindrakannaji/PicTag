@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.plumillonforge.android.chipview.Chip;
 import com.plumillonforge.android.chipview.ChipView;
@@ -352,24 +351,11 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
         protected void onPostExecute(String message) {
             super.onPostExecute(message);
             if (error.equalsIgnoreCase("") && message.equalsIgnoreCase("")) {
-                handler.post(new DisplayToast("Posted successfully!"));
+                ((HomeActivity) getActivity()).displayToast("Posted successfully!");
                 ((HomeActivity) getActivity()).displayNewsFeed();
             } else{
-                handler.post(new DisplayToast(message));
+                ((HomeActivity) getActivity()).displayToast(message);
             }
-        }
-    }
-
-    private class DisplayToast implements Runnable{
-
-        String message;
-
-        DisplayToast(String message){
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -432,7 +418,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                     br.close();
                 } else{
                     error = "Unable to get tags!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 Log.d("RESPONSE BODY: ", response);
 
@@ -448,7 +434,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                         }
                     } else {
                         error = "No Parameters found!";
-                        handler.post(new DisplayToast(error));
+                        ((HomeActivity) getActivity()).displayToast(error);
                     }
                 }
                 myConnection.disconnect();

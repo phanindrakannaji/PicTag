@@ -1,7 +1,6 @@
 package com.umbc.android.pictag;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -9,16 +8,16 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
+
+import com.umbc.android.pictag.adapter.ImageAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,10 +32,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 
@@ -48,18 +44,17 @@ import java.util.List;
  * </pre>
  * <p>You activity (or fragment) needs to implement {@link NewsFeedFragment.Listener}.</p>
  */
-public class NewsFeedFragment extends BottomSheetDialogFragment implements View.OnClickListener {
+public class NewsFeedFragment extends BottomSheetDialogFragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_ITEM_COUNT = "item_count";
     private static final String TAG = "NEWSFEEDFRAGMENT";
     private Listener mListener;
-    Button tempButton;
 
-    Handler handler = new Handler();
     private View parentView;
-    List<Post> posts;
+    List<TagImages> tagImages;
     private UserProfile userProfile;
+    private GridView gridview;
 
     // TODO: Customize parameters
     public static NewsFeedFragment newInstance(int itemCount) {
@@ -76,9 +71,19 @@ public class NewsFeedFragment extends BottomSheetDialogFragment implements View.
                              @Nullable Bundle savedInstanceState) {
         parentView = inflater.inflate(R.layout.fragment_news_feed, container, false);
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
-        tempButton = (Button) parentView.findViewById(R.id.tempButton);
-        tempButton.setOnClickListener(this);
+        gridview = (GridView) parentView.findViewById(R.id.gridview);
+
+        String[] input = new String[1];
+        input[0] = userProfile.getId();
+        GetPostsTask getPostsTask = new GetPostsTask();
+        getPostsTask.execute(input);
+
         return parentView;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     @Override
@@ -89,17 +94,6 @@ public class NewsFeedFragment extends BottomSheetDialogFragment implements View.
     @Override
     public void onDetach() {
         super.onDetach();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.tempButton:
-                Intent myIntent = new Intent(getActivity(), PostsOfTagActivity.class);
-                myIntent.putExtra("selected_tag_id", "44");
-                startActivity(myIntent);
-                break;
-        }
     }
 
     public interface Listener {
@@ -146,16 +140,16 @@ public class NewsFeedFragment extends BottomSheetDialogFragment implements View.
         }
     }
 
-    private class GetPostsTask extends AsyncTask<String, Integer, List<Post>> {
+    private class GetPostsTask extends AsyncTask<String, Integer, List<TagImages>> {
 
         String error = "";
         @Override
-        protected List<Post> doInBackground(String... strings) {
+        protected List<TagImages> doInBackground(String... strings) {
             URL url;
             String response = "";
             String domain = getString(R.string.domain);
             String requestUrl = domain + "/pictag/getPostsForUser.php";
-            posts = new ArrayList<>();
+            tagImages = new ArrayList<>();
             try{
                 url = new URL(requestUrl);
                 HttpURLConnection myConnection = (HttpURLConnection) url.openConnection();
@@ -188,8 +182,8 @@ public class NewsFeedFragment extends BottomSheetDialogFragment implements View.
                     }
                     br.close();
                 } else{
-                    error = "Unable to get posts!!";
-                    handler.post(new DisplayToast(error));
+                    error = "Unable to get tagImages!!";
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 Log.d("RESPONSE BODY: ", response);
 
@@ -197,84 +191,53 @@ public class NewsFeedFragment extends BottomSheetDialogFragment implements View.
                     JSONArray jsonArray = new JSONArray(response);
                     if (jsonArray.length() > 0) {
                         for (int i = 0; i < jsonArray.length(); i++) {
+                            TagImages tagImagesObj = new TagImages();
                             JSONObject childJsonObj = jsonArray.getJSONObject(i);
-                            if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
-
-                                int juserId = childJsonObj.getInt("user_id");
-                                String jImageUrl = childJsonObj.getString("image_url");
-                                boolean jIsPriced = childJsonObj.getString("is_Priced").equals("Y");
-                                String jPrice = childJsonObj.getString("price");
-                                String jDescription = childJsonObj.getString("description");
-                                Date jcreatedDate = null;
-                                try {
-                                    jcreatedDate = (Date) new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(childJsonObj.getString("created_date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
+                            tagImagesObj.setTagName(childJsonObj.getString("tag_name"));
+                            List<String> imagesList = new ArrayList<>();
+                            JSONArray imagesListArray = childJsonObj.getJSONArray("images_list");
+                            if (imagesListArray.length() > 0) {
+                                tagImagesObj.setTagId(imagesListArray.getJSONObject(0).getString("tag_id"));
+                                for (int j = 0; j < imagesListArray.length(); j++) {
+                                    JSONObject childImagesJsonObj = imagesListArray.getJSONObject(j);
+                                    imagesList.add(j, childImagesJsonObj.getString("image_url"));
                                 }
-                                Date jLastUpdatedDate = null;
-                                try {
-                                    jLastUpdatedDate = (Date) new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(childJsonObj.getString("last_updated_date"));
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-                                String jStatus = childJsonObj.getString("postStatus");
-                                boolean jIsPrivate = childJsonObj.getString("is_private").equals("Y");
-                                int jWatermark = childJsonObj.getInt("watermark_id");
-                                int jCategory = childJsonObj.getInt("category");
-                                int jUpCount = childJsonObj.getInt("up_count");
-                                int jDownCount = childJsonObj.getInt("down_count");
-                                Post post = new Post(juserId, jImageUrl, jIsPriced, jDescription,
-                                        jcreatedDate, jLastUpdatedDate, jStatus, jIsPrivate,
-                                        jWatermark, jCategory, jUpCount, jDownCount);
-                                posts.add(post);
-                            } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
-                                error = childJsonObj.getString("errorMessage");
-                                handler.post(new DisplayToast(error));
+                                tagImagesObj.setImageUrls(imagesList);
                             }
+                            tagImages.add(i, tagImagesObj);
                         }
                     } else {
                         error = "No Tags selected!";
-                        handler.post(new DisplayToast(error));
+                        ((HomeActivity) getActivity()).displayToast(error);
                     }
-                    Log.d("Posts info: ", String.valueOf(posts.size()));
+                    Log.d("Posts info: ", String.valueOf(tagImages.size()));
                 }
                 myConnection.disconnect();
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
-            return posts;
+            return tagImages;
         }
 
         @Override
-        protected void onPostExecute(List<Post> posts) {
-            super.onPostExecute(posts);
-            if (error.equalsIgnoreCase("") && posts != null && posts.size() > 0) {
-                //TODO 1
-                // display the list of posts in some list view
+        protected void onPostExecute(List<TagImages> tagImages) {
+            super.onPostExecute(tagImages);
+            if (error.equalsIgnoreCase("") && tagImages != null && tagImages.size() > 0) {
                 updatePosts();
-                Log.d(TAG, posts.get(0).getDescription());
+            } else{
+                ((HomeActivity) getActivity()).displayToast("Select tags to continue!!");
+                ((HomeActivity)getActivity()).displaySearchTags();
             }
         }
     }
 
-    private class DisplayToast implements Runnable{
-
-        String message;
-
-        DisplayToast(String message){
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     public void updatePosts(){
-        ((HomeActivity)getActivity()).runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
+                if (tagImages!=null && tagImages.size()>0) {
+                    gridview.setAdapter(new ImageAdapter(getActivity().getApplicationContext(), tagImages));
+                }
             }
         });
     }

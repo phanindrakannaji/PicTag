@@ -92,10 +92,11 @@ public class PostsOfTagActivity extends AppCompatActivity {
         tagHeading = (TextView) findViewById(R.id.tagHeading);
         postsListView = (ListView) findViewById(R.id.postsList);
         Intent myIntent = getIntent();
-        String selectedTagId = myIntent.getStringExtra("selected_tag_id");
+        String selectedTagName = myIntent.getStringExtra("selected_tag_id");
+        tagHeading.setText(selectedTagName);
         String[] input = new String[2];
         input[0] = userProfile.getId();
-        input[1] = selectedTagId;
+        input[1] = selectedTagName;
         GetPostsForUserTagTask getPostsForUserTagTask = new GetPostsForUserTagTask();
         getPostsForUserTagTask.execute(input);
     }
@@ -108,7 +109,7 @@ public class PostsOfTagActivity extends AppCompatActivity {
             URL url;
             String response = "";
             String domain = getString(R.string.domain);
-            String requestUrl = domain + "/pictag/getPostsForUser.php";
+            String requestUrl = domain + "/pictag/getPostsForUserTag.php";
             posts = new ArrayList<>();
             try{
                 url = new URL(requestUrl);
@@ -124,7 +125,7 @@ public class PostsOfTagActivity extends AppCompatActivity {
 
                 String requestJsonString = new JSONObject()
                         .put("user_id", strings[0])
-                        .put("tag_id", strings[1])
+                        .put("tag_name", strings[1])
                         .toString();
 
                 Log.d("REQUEST BODY : ", requestJsonString);
@@ -143,7 +144,7 @@ public class PostsOfTagActivity extends AppCompatActivity {
                     }
                     br.close();
                 } else{
-                    error = "Unable to get posts!!";
+                    error = "Unable to get tagImages!!";
                     handler.post(new DisplayToast(error));
                 }
                 Log.d("RESPONSE BODY: ", response);
@@ -154,21 +155,23 @@ public class PostsOfTagActivity extends AppCompatActivity {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject childJsonObj = jsonArray.getJSONObject(i);
                             if (childJsonObj.getString("status").equalsIgnoreCase("S")) {
-
-                                int juserId = childJsonObj.getInt("user_id");
+                                int postId = childJsonObj.getInt("post_id");
+                                int ownerId = childJsonObj.getInt("owner_id");
                                 String jImageUrl = childJsonObj.getString("image_url");
                                 boolean jIsPriced = childJsonObj.getString("is_Priced").equals("Y");
                                 String jPrice = childJsonObj.getString("price");
                                 String jDescription = childJsonObj.getString("description");
                                 Date jcreatedDate = null;
                                 try {
-                                    jcreatedDate = (Date) new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(childJsonObj.getString("created_date"));
+                                    jcreatedDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                                            .parse(childJsonObj.getString("created_date"));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                                 Date jLastUpdatedDate = null;
                                 try {
-                                    jLastUpdatedDate = (Date) new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(childJsonObj.getString("last_updated_date"));
+                                    jLastUpdatedDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")
+                                            .parse(childJsonObj.getString("last_updated_date"));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -178,9 +181,9 @@ public class PostsOfTagActivity extends AppCompatActivity {
                                 int jCategory = childJsonObj.getInt("category");
                                 int jUpCount = childJsonObj.getInt("up_count");
                                 int jDownCount = childJsonObj.getInt("down_count");
-                                Post post = new Post(juserId, jImageUrl, jIsPriced, jDescription,
-                                        jcreatedDate, jLastUpdatedDate, jStatus, jIsPrivate,
-                                        jWatermark, jCategory, jUpCount, jDownCount);
+                                boolean upVote = childJsonObj.getString("upVote").equals("U");
+                                Post post = new Post(ownerId, postId, jImageUrl, jIsPriced, jDescription, jcreatedDate,
+                                        jLastUpdatedDate, jStatus, jIsPrivate, jWatermark, jCategory, jUpCount, jDownCount, upVote);
                                 posts.add(post);
                             } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                 error = childJsonObj.getString("errorMessage");

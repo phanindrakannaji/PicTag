@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarChangeListener;
 import com.crystal.crystalrangeseekbar.interfaces.OnSeekbarFinalValueListener;
@@ -294,7 +293,7 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
                     br.close();
                 } else{
                     error = "Unable to get tags!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 Log.d("RESPONSE BODY: ", response);
 
@@ -313,12 +312,12 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
                                 tags.add(tag);
                             } else if (childJsonObj.getString("status").equalsIgnoreCase("F")) {
                                 error = childJsonObj.getString("errorMessage");
-                                handler.post(new DisplayToast(error));
+                                ((HomeActivity) getActivity()).displayToast(error);
                             }
                         }
                     } else {
                         error = "No Tags selected!";
-                        handler.post(new DisplayToast(error));
+                        ((HomeActivity) getActivity()).displayToast(error);
                     }
                 }
                 myConnection.disconnect();
@@ -331,19 +330,23 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
         @Override
         protected void onPostExecute(List<Tag> tags) {
             super.onPostExecute(tags);
-            if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
-                //TODO 1
-                // display the list of tags in some list view
-                chipList = new ArrayList<>();
-                for (Tag tag : tags) {
-                    chipList.add(new TagsFragment.TagView(tag.getTagId(), tag.getTagName(), 0,
-                            tag.getNotify(), tag.getMinVotes(), tag.isSelected()));
+            try {
+                if (error.equalsIgnoreCase("") && tags != null && tags.size() > 0) {
+                    //TODO 1
+                    // display the list of tags in some list view
+                    chipList = new ArrayList<>();
+                    for (Tag tag : tags) {
+                        chipList.add(new TagsFragment.TagView(tag.getTagId(), tag.getTagName(), 0,
+                                tag.getNotify(), tag.getMinVotes(), tag.isSelected()));
+                    }
+
+                    chipView.setChipList(chipList);
+                    chipView.setOnChipClickListener(TagsFragment.this);
+
+                    Log.d(TAG, tags.get(0).getTagName());
                 }
-
-                chipView.setChipList(chipList);
-                chipView.setOnChipClickListener(TagsFragment.this);
-
-                Log.d(TAG, tags.get(0).getTagName());
+            } catch(Exception e){
+                e.printStackTrace();
             }
         }
     }
@@ -393,7 +396,7 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
                     br.close();
                 } else{
                     error = "Unable to update tag!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 myConnection.disconnect();
             } catch (IOException | JSONException e) {
@@ -458,7 +461,7 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
                     br.close();
                 } else{
                     error = "Unable to delete tag!!";
-                    handler.post(new DisplayToast(error));
+                    ((HomeActivity) getActivity()).displayToast(error);
                 }
                 myConnection.disconnect();
             } catch (IOException | JSONException e) {
@@ -477,19 +480,6 @@ public class TagsFragment extends Fragment implements OnChipClickListener, Compo
             input[0] = userProfile.getId();
             GetTagsTask getTagsTask = new GetTagsTask();
             getTagsTask.execute(input);
-        }
-    }
-
-    private class DisplayToast implements Runnable{
-
-        String message;
-
-        DisplayToast(String message){
-            this.message = message;
-        }
-        @Override
-        public void run() {
-            Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         }
     }
 

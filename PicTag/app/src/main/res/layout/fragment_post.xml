@@ -5,9 +5,8 @@
     android:tag="postFragment">
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:id="@+id/postfrag_imageview"
-        android:layout_margin="20dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -24,13 +23,12 @@
         android:id="@+id/postfrag_upvote"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/ic_thumb_up"
-        android:layout_alignTop="@+id/postfrag_upCount"
-        android:layout_alignStart="@+id/postfrag_imageview" />
+        android:layout_below="@+id/postfrag_desc"
+        android:background="@drawable/ic_thumb_up" />
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:id="@+id/postfrag_upCount"
         android:layout_marginStart="20dp"
         android:textAlignment="center"

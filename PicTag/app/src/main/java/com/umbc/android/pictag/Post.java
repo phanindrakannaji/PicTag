@@ -23,7 +23,9 @@ public class Post {
     private int downCount;
     private boolean upVote;
 
-    public Post(int ownerId, String imageUrl, boolean isPriced, String description, Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, int watermarkId, int category, int upCount, int downCount) {
+    public Post(int ownerId, String imageUrl, boolean isPriced, String description,
+                Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate,
+                int watermarkId, int category, int upCount, int downCount) {
         this.ownerId = ownerId;
         this.imageUrl = imageUrl;
         this.isPriced = isPriced;
@@ -36,6 +38,25 @@ public class Post {
         this.category = category;
         this.upCount = upCount;
         this.downCount = downCount;
+    }
+
+    public Post(int ownerId, int postId, String imageUrl, boolean isPriced, String description,
+                Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, int watermarkId,
+                int category, int upCount, int downCount, boolean upVote) {
+        this.ownerId = ownerId;
+        this.postId = postId;
+        this.imageUrl = imageUrl;
+        this.isPriced = isPriced;
+        this.description = description;
+        this.createdDate = createdDate;
+        this.lastUpdatedDate = lastUpdatedDate;
+        this.status = status;
+        this.isPrivate = isPrivate;
+        this.watermarkId = watermarkId;
+        this.category = category;
+        this.upCount = upCount;
+        this.downCount = downCount;
+        this.upVote = upVote;
     }
 
     public int getPostId() {

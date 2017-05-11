@@ -3,21 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.umbc.android.pictag.NewsFeedFragment">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tempButton"
-        android:text="Temp Button"/>
-<ListView
-    android:id="@+id/list"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:paddingBottom="@dimen/list_item_spacing_half"
-    android:paddingTop="@dimen/list_item_spacing_half"
-    tools:listitem="@layout/fragment_newsfeed_item"
-    android:tag="newsfeedFragment"/>
+    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="2"
+        android:layout_centerHorizontal="true"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="0dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        />
 
 </RelativeLayout>
