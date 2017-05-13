@@ -11,7 +11,7 @@ $isPriced = $data["isPriced"];
 $price = floatval($data["price"]);
 $description = $data["description"];
 $isPrivate = $data["isPrivate"];
-$watermarkId = $data["watermarkId"];
+$watermark = $data["watermark"];
 $category = $data["category"];
 $tagsJson = $data["tags"];
 $tagsJson = str_replace("[", "", $tagsJson);
@@ -33,7 +33,7 @@ $picUrl = $mysqli->real_escape_string($picUrl);
 $error = "";
 $errorOccurred = false;
 
-$query = "INSERT INTO $table(user_id, image_url, is_Priced, price, description, created_date, last_updated_date, status, is_private, watermark_id, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', $price, '$description', now(), now(), 'Y', '$isPrivate', '$watermarkId', '$category', 0, 0)";
+$query = "INSERT INTO $table(user_id, image_url, is_Priced, price, description, created_date, last_updated_date, status, is_private, watermark, category, up_count, down_count) VALUES($userId, '$picUrl', '$isPriced', $price, '$description', now(), now(), 'Y', '$isPrivate', '$watermark', '$category', 0, 0)";
 $result = $mysqli->query($query);
 if(!$result)
 {

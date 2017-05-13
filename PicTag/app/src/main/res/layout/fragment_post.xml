@@ -37,6 +37,4 @@
         android:layout_toEndOf="@+id/postfrag_upvote"
         />
 
-
-
 </RelativeLayout>

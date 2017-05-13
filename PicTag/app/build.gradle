@@ -32,6 +32,9 @@ dependencies {
 
 
 
+
+
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
@@ -55,12 +58,9 @@ dependencies {
     compile 'com.daimajia.slider:library:1.1.5@aar'
     compile 'com.github.chuross:aspect-ratio-imageview:v1.0.2'
     compile 'com.bogdwellers:pinchtozoom:0.1'
-
     compile 'com.android.support:support-compat:25.3.1'
     compile 'com.daimajia.easing:library:2.0@aar'
     compile 'com.daimajia.androidanimations:library:2.2@aar'
-
-
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 }

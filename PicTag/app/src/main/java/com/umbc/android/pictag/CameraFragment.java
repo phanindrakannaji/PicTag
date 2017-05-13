@@ -63,10 +63,9 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
     TextView tvPriceSymbol;
     EditText description, price;
     Switch priceSwitch, privateSwitch, watermarkSwitch;
-    Spinner watermark, category;
+    Spinner category;
     List<StringWithTag> categories;
-    List<StringWithTag> watermarks;
-    int selectedCategory = 0, selectedWatermark = 0;
+    int selectedCategory = 0;
     ChipView newPicChipView;
     List<String> tagNames;
 
@@ -74,6 +73,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
 
     private OnFragmentInteractionListener mListener;
     Handler handler = new Handler();
+    private TextView watermark;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -127,10 +127,8 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
         privateSwitch.setOnCheckedChangeListener(this);
         watermarkSwitch.setOnCheckedChangeListener(this);
 
-        watermark = (Spinner) parentView.findViewById(R.id.watermark);
+        watermark = (TextView) parentView.findViewById(R.id.watermark);
         category = (Spinner) parentView.findViewById(R.id.category);
-
-        watermark.setOnItemSelectedListener(this);
         category.setOnItemSelectedListener(this);
 
         userProfile = ((HomeActivity) getActivity()).getUserProfile();
@@ -145,12 +143,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
         categoryInput[1] = "G";
         GetParametersTask categoriesTask = new GetParametersTask();
         categoriesTask.execute(categoryInput);
-
-        String[] watermarkInput = new String[2];
-        watermarkInput[0] = "WATERMARK";
-        watermarkInput[1] = "G";
-        GetParametersTask watermarksTask = new GetParametersTask();
-        watermarksTask.execute(watermarkInput);
 
         goBack.setOnClickListener(this);
         topDone.setOnClickListener(this);
@@ -199,7 +191,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
         input[3] = (String.valueOf(price.getText()).equalsIgnoreCase(""))?"0":String.valueOf(price.getText());
         input[4] = String.valueOf(description.getText());
         input[5] = privateSwitch.isChecked()?"Y":"N";
-        input[6] = String.valueOf(selectedWatermark);
+        input[6] = watermarkSwitch.isChecked()?String.valueOf(watermark.getText()):"";
         input[7] = String.valueOf(selectedCategory);
 
         CreatePostTask createPostTask = new CreatePostTask();
@@ -234,10 +226,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         switch(adapterView.getId()){
-            case R.id.watermark:
-                StringWithTag watermarkSWT = (StringWithTag) adapterView.getItemAtPosition(i);
-                selectedWatermark = Integer.valueOf((String) watermarkSWT.tag);
-                break;
             case R.id.category:
                 StringWithTag categorySWT = (StringWithTag) adapterView.getItemAtPosition(i);
                 selectedCategory = Integer.valueOf((String) categorySWT.tag);
@@ -302,7 +290,7 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                         .put("price", strings[3])
                         .put("description", strings[4])
                         .put("isPrivate", strings[5])
-                        .put("watermarkId", strings[6])
+                        .put("watermark", strings[6])
                         .put("category", strings[7])
                         .put("tags", tagNames)
                         .toString();
@@ -444,9 +432,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
             if (strings[0].equalsIgnoreCase("CATEGORY")){
                 categories = list;
                 setCategories();
-            } else if(strings[0].equalsIgnoreCase("WATERMARK")){
-                watermarks = list;
-                setWatermarks();
             }
             return list;
         }
@@ -464,17 +449,6 @@ public class CameraFragment extends Fragment implements View.OnClickListener, Co
                 ArrayAdapter<StringWithTag> categoryAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, categories);
                 categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 category.setAdapter(categoryAdapter);
-            }
-        });
-    }
-
-    public void setWatermarks(){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ArrayAdapter<StringWithTag> watermarkAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, watermarks);
-                watermarkAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                watermark.setAdapter(watermarkAdapter);
             }
         });
     }

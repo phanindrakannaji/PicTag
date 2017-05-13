@@ -21,10 +21,14 @@ import com.squareup.picasso.Transformation;
 public class WatermarkTransformation implements Transformation {
 
     private String waterMark;
-    private static final int PADDING = 8;
+    private static final int PADDING = 25;
+    float density;
+    int color;
 
-    public WatermarkTransformation(String waterMark) {
+    public WatermarkTransformation(String waterMark, float density, int color) {
         this.waterMark = waterMark;
+        this.density = density;
+        this.color = color;
     }
 
     @Override
@@ -37,14 +41,15 @@ public class WatermarkTransformation implements Transformation {
         Canvas canvas = new Canvas(mutableBitmap);
 
         Paint paint2 = new Paint();
-        paint2.setColor(palette.getVibrantColor(0xdd03a9f4));
-        paint2.setTextSize(32);
+        paint2.setColor(color);
+        paint2.setTextSize(50*density);
         paint2.setTextAlign(Paint.Align.RIGHT);
         paint2.setAntiAlias(true);
+        paint2.setAlpha(50);
         Rect textBounds = new Rect();
         paint2.getTextBounds(waterMark, 0, waterMark.length(), textBounds);
-        int x = source.getWidth() - PADDING;
-        int y = source.getHeight() - PADDING;
+        int x = source.getHeight()/2;
+        int y = source.getWidth()/2;
 
 
         canvas.drawText(waterMark, x, y, paint2);

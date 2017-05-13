@@ -93,11 +93,11 @@
                 android:layout_marginStart="10dp"
                 android:id="@+id/tv_price_symbol"
                 />
-            <EditText
+            <android.support.design.widget.TextInputEditText
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
                 android:id="@+id/price"
+                android:hint="Enter price"
                 android:visibility="invisible"
                 android:layout_toEndOf="@+id/tv_price_symbol"
                 android:layout_below="@+id/newImage"
@@ -142,11 +142,13 @@
                 android:layout_below="@+id/tv_private"
                 android:layout_marginStart="200dp" />
 
-            <Spinner
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/watermark"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
                 android:visibility="invisible"
+                android:hint="watermark"
                 android:layout_toEndOf="@id/watermarkSwitch"
                 android:layout_below="@+id/tv_private"
                 />

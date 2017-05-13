@@ -80,7 +80,8 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <activity android:name=".PostsOfTagActivity"></activity>
+        <activity android:name=".PostsOfTagActivity" />
+        <activity android:name=".IndividualTagPosts"></activity>
     </application>
 
 </manifest>

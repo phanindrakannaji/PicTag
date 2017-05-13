@@ -68,7 +68,7 @@ if ($createPosts){
 		last_updated_date DATETIME,
 		status VARCHAR(1),
 		is_private VARCHAR(1),
-		watermark_id INT,
+		watermark VARCHAR(20),
 		category INT,
 		up_count INT,
 		down_count INT

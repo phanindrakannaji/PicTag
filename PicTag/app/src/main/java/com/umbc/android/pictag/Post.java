@@ -12,20 +12,21 @@ public class Post {
     private int postId;
     private String imageUrl;
     private boolean isPriced;
+    private String price;
     private String description;
     private Date createdDate;
     private Date lastUpdatedDate;
     private String status;
     private boolean isPrivate;
-    private int watermarkId;
+    private String watermark;
     private int category;
     private int upCount;
     private int downCount;
     private boolean upVote;
 
-    public Post(int ownerId, String imageUrl, boolean isPriced, String description,
+    public Post(int ownerId, String imageUrl, boolean isPriced, String price, String description,
                 Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate,
-                int watermarkId, int category, int upCount, int downCount) {
+                String watermark, int category, int upCount, int downCount) {
         this.ownerId = ownerId;
         this.imageUrl = imageUrl;
         this.isPriced = isPriced;
@@ -34,14 +35,14 @@ public class Post {
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
         this.isPrivate = isPrivate;
-        this.watermarkId = watermarkId;
+        this.watermark = watermark;
         this.category = category;
         this.upCount = upCount;
         this.downCount = downCount;
     }
 
-    public Post(int ownerId, int postId, String imageUrl, boolean isPriced, String description,
-                Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, int watermarkId,
+    public Post(int ownerId, int postId, String imageUrl, boolean isPriced, String price, String description,
+                Date createdDate, Date lastUpdatedDate, String status, boolean isPrivate, String watermark,
                 int category, int upCount, int downCount, boolean upVote) {
         this.ownerId = ownerId;
         this.postId = postId;
@@ -50,9 +51,10 @@ public class Post {
         this.description = description;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
+        this.price = price;
         this.status = status;
         this.isPrivate = isPrivate;
-        this.watermarkId = watermarkId;
+        this.watermark = watermark;
         this.category = category;
         this.upCount = upCount;
         this.downCount = downCount;
@@ -131,12 +133,12 @@ public class Post {
         isPrivate = aPrivate;
     }
 
-    public int getWatermarkId() {
-        return watermarkId;
+    public String getWatermark() {
+        return watermark;
     }
 
-    public void setWatermarkId(int watermarkId) {
-        this.watermarkId = watermarkId;
+    public void setWatermark(String watermark) {
+        this.watermark = watermark;
     }
 
     public int getCategory() {
@@ -169,5 +171,13 @@ public class Post {
 
     public void setUpVote(boolean upVote) {
         this.upVote = upVote;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
     }
 }

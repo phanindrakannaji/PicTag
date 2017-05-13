@@ -3,20 +3,20 @@ package com.umbc.android.pictag.adapter;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.umbc.android.pictag.Post;
 import com.umbc.android.pictag.R;
+import com.umbc.android.pictag.SolventViewHolders;
 import com.umbc.android.pictag.utils.WatermarkTransformation;
 
 import org.json.JSONException;
@@ -33,23 +33,24 @@ import java.net.URL;
 import java.util.List;
 
 /**
- * Created by phani on 5/9/17.
+ * Created by phani on 5/10/17.
  */
 
-public class PostsOfTagAdapter extends BaseAdapter {
-    private static LayoutInflater inflater=null;
-    List<Post> posts;
-    Context context;
-    private String userId;
+public class SolventRecyclerViewAdapter  extends RecyclerView.Adapter<SolventViewHolders> {
+
+    private List<Post> posts;
+    private Context context;
     private final int screenWidth;
     private final int screenHeight;
     private int res;
+    private String userId;
+    ViewGroup parent;
 
-    public PostsOfTagAdapter(Context context, List<Post> posts, String userId) {
-        this.context = context;
+    public SolventRecyclerViewAdapter(Context context, List<Post> posts, String userId) {
         this.posts = posts;
+        this.context = context;
         this.userId = userId;
-        inflater = ( LayoutInflater )context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         Display display = ((WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -63,55 +64,57 @@ public class PostsOfTagAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return posts.size();
+    public SolventViewHolders onCreateViewHolder(ViewGroup parent, int viewType) {
+        this.parent = parent;
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.solvent_list, null);
+        SolventViewHolders rcv = new SolventViewHolders(layoutView);
+        return rcv;
     }
 
     @Override
-    public Object getItem(int position) {
-        return position;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    public class DisplayPost
-    {
-        ImageView postfragImageview;
-        TextView postfragDesc;
-        TextView postfragUpCount;
-        Button postFragUpVote;
-    }
-
-    @Override
-    public View getView(final int position, final View convertView, final ViewGroup parent) {
-        DisplayPost displayPost =new DisplayPost();
-        Log.d("INSIDE LAYOUT", "Hi" + position);
-        View rowView;
-        rowView = inflater.inflate(R.layout.fragment_post, null);
-        displayPost.postfragDesc=(TextView) rowView.findViewById(R.id.postfrag_desc);
-        displayPost.postfragImageview=(ImageView) rowView.findViewById(R.id.postfrag_imageview);
-        displayPost.postFragUpVote=(Button) rowView.findViewById(R.id.postfrag_upvote);
-        displayPost.postfragUpCount = (TextView) rowView.findViewById(R.id.postfrag_upCount);
-        displayPost.postFragUpVote.setTag(position);
-        displayPost.postfragUpCount.setTag("upCount"+position);
-        displayPost.postfragDesc.setText(posts.get(position).getDescription());
-        displayPost.postfragUpCount.setText(posts.get(position).getUpCount() + " upvotes");
-        Picasso.with(context)
-                .load(posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/").replace("https:/", "https://"))
-                .transform(new WatermarkTransformation("Pictag", context.getResources().getDisplayMetrics().density, R.color.blue))
-                .centerCrop()
-                .resize(res, res)
-                .placeholder( R.drawable.progress_animation )
-                .into(displayPost.postfragImageview);
-        if (posts.get(position).isUpVote()) {
-            displayPost.postFragUpVote.setBackground(context.getResources().getDrawable(R.drawable.ic_thumb_up_accent, context.getTheme()));
-        } else{
-            displayPost.postFragUpVote.setBackground(context.getResources().getDrawable(R.drawable.ic_thumb_up, context.getTheme()));
+    public void onBindViewHolder(SolventViewHolders holder, int position) {
+        holder.postUpVote.setTag(position);
+        holder.postUpCount.setTag("upCount"+position);
+        holder.postDescription.setText(posts.get(position).getDescription());
+        holder.postUpCount.setText(posts.get(position).getUpCount() + " upvotes");
+        if (posts.get(position).getWatermark() == null
+                || posts.get(position).getWatermark().equalsIgnoreCase("")
+                || posts.get(position).getWatermark().equalsIgnoreCase("null")){
+            Picasso.with(context)
+                    .load(posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/").replace("https:/", "https://"))
+                    .centerCrop()
+                    .resize(res, res)
+                    .placeholder(R.drawable.progress_animation)
+                    .into(holder.postImage);
+        } else {
+            Picasso.with(context)
+                    .load(posts.get(position).getImageUrl().replace("\\/", "/").replace("//", "/").replace("https:/", "https://"))
+                    .transform(new WatermarkTransformation(posts.get(position).getWatermark(), context.getResources().getDisplayMetrics().density, R.color.blue))
+                    .centerCrop()
+                    .resize(res, res)
+                    .placeholder(R.drawable.progress_animation)
+                    .into(holder.postImage);
         }
-        displayPost.postFragUpVote.setOnClickListener(new View.OnClickListener() {
+        if (posts.get(position).isUpVote()) {
+            holder.postUpVote.setBackground(context.getResources().getDrawable(R.drawable.ic_thumb_up_accent, context.getTheme()));
+        } else{
+            holder.postUpVote.setBackground(context.getResources().getDrawable(R.drawable.ic_thumb_up, context.getTheme()));
+        }
+        if (posts.get(position).isPriced()){
+            holder.postPrice.setVisibility(View.VISIBLE);
+            holder.postPurchasePic.setVisibility(View.VISIBLE);
+        } else{
+            holder.postPrice.setVisibility(View.INVISIBLE);
+            holder.postPurchasePic.setVisibility(View.INVISIBLE);
+        }
+        holder.postPrice.setText("$ " + posts.get(position).getPrice());
+        holder.postPurchasePic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Future Work \\m/", Toast.LENGTH_SHORT).show();
+            }
+        });
+        holder.postUpVote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int postPosition = (Integer) v.getTag();
@@ -133,7 +136,11 @@ public class PostsOfTagAdapter extends BaseAdapter {
                 toggleUpvotePost.execute(input);
             }
         });
-        return rowView;
+    }
+
+    @Override
+    public int getItemCount() {
+        return this.posts.size();
     }
 
     private class ToggleUpvotePost extends AsyncTask<String, Integer, Void> {

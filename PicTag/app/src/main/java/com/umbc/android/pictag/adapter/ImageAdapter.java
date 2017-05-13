@@ -15,7 +15,7 @@ import com.daimajia.slider.library.Indicators.PagerIndicator;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
-import com.umbc.android.pictag.PostsOfTagActivity;
+import com.umbc.android.pictag.IndividualTagPosts;
 import com.umbc.android.pictag.TagImages;
 
 import java.util.ArrayList;
@@ -24,6 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by phani on 5/10/17.
+ *
+ * Used for displaying the image sliders in the staggered grid layout of the recycler view
  */
 
 public class ImageAdapter extends BaseAdapter implements BaseSliderView.OnSliderClickListener {
@@ -69,6 +71,7 @@ public class ImageAdapter extends BaseAdapter implements BaseSliderView.OnSlider
             sliderLayout = new SliderLayout(mContext);
             sliderLayout.setIndicatorVisibility(PagerIndicator.IndicatorVisibility.Invisible);
             int res = 0;
+            // calculate width and heigh based on screen resolution and pixel density
             if (screenHeight > screenWidth){
                 res = Math.round(screenWidth/2)-2;
             } else{
@@ -100,7 +103,7 @@ public class ImageAdapter extends BaseAdapter implements BaseSliderView.OnSlider
     public void onSliderClick(BaseSliderView slider) {
         String tagName = slider.getDescription();
         Log.d("TEST", tagName);
-        Intent myIntent = new Intent(mContext, PostsOfTagActivity.class);
+        Intent myIntent = new Intent(mContext, IndividualTagPosts.class);
         myIntent.putExtra("selected_tag_id", tagName);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.startActivity(myIntent);

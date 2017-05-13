@@ -3,19 +3,20 @@ package com.umbc.android.pictag;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.umbc.android.pictag.adapter.PostsOfTagAdapter;
+import com.umbc.android.pictag.adapter.SolventRecyclerViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,23 +36,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class PostsOfTagActivity extends AppCompatActivity {
-
-    TextView tagHeading;
-    ListView postsListView;
-    private int tagId;
+public class IndividualTagPosts extends AppCompatActivity {
+    private static final String TAG = "INDIVIDUALTAGS";
+    private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private List<Post> posts;
     private Handler handler = new Handler();
-    private UserProfile userProfile;
+    private RecyclerView recyclerView;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     SharedPreferences data;
-    private String TAG = "PostOfTagActivity";
+    UserProfile userProfile;
+    private TextView tagHeading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_posts_of_tag);
+        setContentView(R.layout.activity_individual_tag_posts);
+
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+
+        staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, 1);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -62,7 +68,7 @@ public class PostsOfTagActivity extends AppCompatActivity {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
                 } else {
-                    Intent myIntent = new Intent(PostsOfTagActivity.this, LoginActivity.class);
+                    Intent myIntent = new Intent(IndividualTagPosts.this, LoginActivity.class);
                     startActivity(myIntent);
                     Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
@@ -89,15 +95,14 @@ public class PostsOfTagActivity extends AppCompatActivity {
             mAuth.signOut();
         }
 
-        tagHeading = (TextView) findViewById(R.id.tagHeading);
-        postsListView = (ListView) findViewById(R.id.postsList);
+        tagHeading = (TextView) findViewById(R.id.individualTagHeading);
         Intent myIntent = getIntent();
         String selectedTagName = myIntent.getStringExtra("selected_tag_id");
         tagHeading.setText(selectedTagName);
         String[] input = new String[2];
         input[0] = userProfile.getId();
         input[1] = selectedTagName;
-        GetPostsForUserTagTask getPostsForUserTagTask = new GetPostsForUserTagTask();
+        IndividualTagPosts.GetPostsForUserTagTask getPostsForUserTagTask = new IndividualTagPosts.GetPostsForUserTagTask();
         getPostsForUserTagTask.execute(input);
     }
 
@@ -207,10 +212,8 @@ public class PostsOfTagActivity extends AppCompatActivity {
         protected void onPostExecute(List<Post> posts) {
             super.onPostExecute(posts);
             if (error.equalsIgnoreCase("") && posts != null && posts.size() > 0) {
-                postsListView.setAdapter(new PostsOfTagAdapter(getApplicationContext(), posts, userProfile.getId()));
-                synchronized (postsListView) {
-                    postsListView.notifyAll();
-                }
+                SolventRecyclerViewAdapter rcAdapter = new SolventRecyclerViewAdapter(IndividualTagPosts.this, posts, userProfile.getId());
+                recyclerView.setAdapter(rcAdapter);
             }
         }
     }
