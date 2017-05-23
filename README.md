@@ -1,3 +1,3 @@
 ## PicTag
 
-[Doc](PicTag/PicTag.pdf)
+[Doc](PicTag.pdf)
